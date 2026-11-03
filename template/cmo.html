@@ -17,7 +17,7 @@
 {% set total_commits = rows | sum(attribute='total') %}
 {% set total_done = rows | sum(attribute='completed') %}
 {% set total_missed = rows | sum(attribute='missed') %}
-{% set total_added_today = rows | sum(attribute='added_today') %}
+{% set total_no_commitment_today = rows | sum(attribute='no_commitment_today') %}
 {% set total_present = rows | sum(attribute='present') %}
 {% set total_wfh = rows | sum(attribute='wfh') %}
 {% set total_absent = rows | sum(attribute='absent') %}
@@ -58,12 +58,39 @@
       <div class="stat-label">Absent Today</div>
     </div>
   </div>
-  <div class="stat-card">
-    <div class="stat-icon blue"><i data-lucide="plus-circle" class="icon"></i></div>
+  <button type="button" class="stat-card zero-commitment-toggle" id="zeroCommitmentToggle"
+    aria-expanded="false" aria-controls="zeroCommitmentDetails">
+    <div class="stat-icon red"><i data-lucide="user-round-x" class="icon"></i></div>
     <div>
-      <div class="stat-value">{{ total_added_today }}</div>
-      <div class="stat-label">Commitments Added Today</div>
+      <div class="stat-value">{{ total_no_commitment_today }}</div>
+      <div class="stat-label">Staff with Zero Commitments Today</div>
     </div>
+  </button>
+</div>
+
+<div class="card zero-commitment-details" id="zeroCommitmentDetails" hidden>
+  <div class="card-header">
+    <i data-lucide="user-round-x" class="icon"></i>
+    <h2>Staff with Zero Commitments Today</h2>
+    <div class="card-actions">
+      <span class="badge badge-gray">{{ total_no_commitment_today }} staff</span>
+    </div>
+  </div>
+  <div class="card-body">
+    {% if zero_commitment_staff %}
+    {% for manager_name, staff_list in zero_commitment_staff | groupby('manager') %}
+    <section class="zero-commitment-manager">
+      <h3>{{ manager_name }}</h3>
+      <ul>
+        {% for staff in staff_list %}
+        <li><a href="{{ url_for('user_view', uid=staff.staff_id) }}">{{ staff.staff }}</a></li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endfor %}
+    {% else %}
+    <p class="text-muted">All staff have at least one commitment covering today.</p>
+    {% endif %}
   </div>
 </div>
 
@@ -80,7 +107,7 @@
       <div class="m-name">{{ r.manager }}</div>
       <div class="m-sub">Manager &middot; {{ r.team_size }} staff member{{ 's' if r.team_size != 1 }}</div>
       <div class="m-today-mobile">
-        Added today: {{ r.added_today }}
+        Zero commitments today: {{ r.no_commitment_today }}
       </div>
     </div>
 
@@ -98,8 +125,8 @@
         <span class="m-stat-lbl">Missed</span>
       </div>
       <div class="m-stat">
-        <span class="m-stat-val">{{ r.added_today }}</span>
-        <span class="m-stat-lbl">Added Today</span>
+        <span class="m-stat-val">{{ r.no_commitment_today }}</span>
+        <span class="m-stat-lbl">Zero Today</span>
       </div>
       <div style="display:flex;gap:6px;align-items:center;">
         <span class="badge att-present"><i data-lucide="check-circle-2"></i>{{ r.present }}</span>

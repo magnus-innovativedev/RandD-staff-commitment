@@ -227,7 +227,9 @@ def team(manager_id=None):
 @login_required(roles=["cmo"])
 def cmo_overview():
     rows = Db.cmo_summary(g.user.id)
-    return render_template("cmo.html", rows=rows)
+    zero_commitment_staff = Db.cmo_zero_commitment_staff(g.user.id)
+    return render_template("cmo.html", rows=rows,
+                           zero_commitment_staff=zero_commitment_staff)
 
 
 @app.route("/user/<int:uid>")

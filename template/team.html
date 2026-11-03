@@ -19,6 +19,7 @@
 {% set total = rows | sum(attribute='total') %}
 {% set done = rows | sum(attribute='completed') %}
 {% set late = rows | sum(attribute='late') %}
+{% set zero_commitment_today = rows | selectattr('today_commitments', 'equalto', 0) | list | length %}
 
 <div class="stats-grid">
   <div class="stat-card">
@@ -49,14 +50,25 @@
       <div class="stat-label">Late Commitments</div>
     </div>
   </div>
+  <button type="button" class="stat-card zero-commitment-team-toggle"
+    data-zero-commitment-team-filter aria-pressed="false">
+    <div class="stat-icon red"><i data-lucide="user-round-x" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ zero_commitment_today }}</div>
+      <div class="stat-label">Staff with Zero Commitments Today</div>
+    </div>
+  </button>
 </div>
 
 <div class="card">
   <div class="card-header">
     <i data-lucide="users" class="icon"></i>
-    <h2>Team Members</h2>
+    <h2 data-team-members-title>Team Members</h2>
     <div class="card-actions">
-      <span class="badge badge-gray">{{ rows | length }} members</span>
+      <button type="button" class="btn btn-ghost btn-sm team-filter-reset" data-team-filter-reset hidden>
+        Show all
+      </button>
+      <span class="badge badge-gray"><span data-team-visible-count>{{ rows | length }}</span> members</span>
     </div>
   </div>
 
@@ -79,7 +91,7 @@
       </thead>
       <tbody>
         {% for r in rows %}
-        <tr class="clickable-row" onclick="window.location='{{ url_for('user_view', uid=r.id) }}'" title="View {{ r.staff }}'s commitments">
+        <tr class="clickable-row" data-zero-commitment-today="{{ 'true' if r.today_commitments == 0 else 'false' }}" onclick="window.location='{{ url_for('user_view', uid=r.id) }}'" title="View {{ r.staff }}'s commitments">
           <td>
             <div class="person-card">
               <div class="person-avatar">{{ r.staff[0].upper() }}</div>
@@ -116,6 +128,9 @@
           </td>
         </tr>
         {% endfor %}
+        <tr data-team-filter-empty hidden>
+          <td colspan="10" class="text-muted">No team members match this filter.</td>
+        </tr>
       </tbody>
     </table>
   </div>

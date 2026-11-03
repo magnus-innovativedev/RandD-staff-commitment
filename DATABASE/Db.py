@@ -248,6 +248,10 @@ def manager_summary(manager_id):
                       OR (c.status IN ('pending','in_progress')
                           AND c.end_date < CURRENT_DATE)
                ) AS late,
+               COUNT(c.id) FILTER (
+                   WHERE c.start_date <= CURRENT_DATE
+                     AND c.end_date >= CURRENT_DATE
+               ) AS today_commitments,
                ROUND(AVG(c.completion_pct), 1) AS avg_completion_pct
         FROM users u
         LEFT JOIN commitments c ON c.owner_id = u.id
@@ -273,9 +277,16 @@ def cmo_summary(cmo_id):
                COUNT(*) FILTER (WHERE c.status IN ('pending','in_progress')
                                   AND c.end_date < CURRENT_DATE) AS overdue,
                COUNT(*) FILTER (WHERE c.status = 'missed') AS missed,
-               COUNT(c.id) FILTER (
-                   WHERE c.created_at::date = CURRENT_DATE
-               ) AS added_today,
+               COUNT(DISTINCT s.id) FILTER (
+                   WHERE s.role = 'staff'
+                     AND NOT EXISTS (
+                         SELECT 1
+                         FROM commitments today_c
+                         WHERE today_c.owner_id = s.id
+                           AND today_c.start_date <= CURRENT_DATE
+                           AND today_c.end_date >= CURRENT_DATE
+                     )
+               ) AS no_commitment_today,
                ROUND(AVG(c.completion_pct), 1) AS avg_completion_pct,
                COUNT(DISTINCT s.id) FILTER (WHERE s.attendance_status = 'present') AS present,
                COUNT(DISTINCT s.id) FILTER (WHERE s.attendance_status = 'wfh') AS wfh,
@@ -289,6 +300,31 @@ def cmo_summary(cmo_id):
     """)
     return _cached_query(
         ("cmo_summary", cmo_id, date.today()),
+        lambda: [dict(row) for row in db.session.execute(
+            sql, {"cid": cmo_id}).mappings().all()],
+    )
+
+
+def cmo_zero_commitment_staff(cmo_id):
+    """Staff under a CMO whose commitments do not cover today's date."""
+    sql = text("""
+        SELECT m.id AS manager_id, m.name AS manager,
+               s.id AS staff_id, s.name AS staff
+        FROM users m
+        JOIN users s ON s.manager_id = m.id AND s.role = 'staff'
+        WHERE m.manager_id = :cid
+          AND m.role = 'manager'
+          AND NOT EXISTS (
+              SELECT 1
+              FROM commitments c
+              WHERE c.owner_id = s.id
+                AND c.start_date <= CURRENT_DATE
+                AND c.end_date >= CURRENT_DATE
+          )
+        ORDER BY m.name, s.name
+    """)
+    return _cached_query(
+        ("cmo_zero_commitment_staff", cmo_id, date.today()),
         lambda: [dict(row) for row in db.session.execute(
             sql, {"cid": cmo_id}).mappings().all()],
     )

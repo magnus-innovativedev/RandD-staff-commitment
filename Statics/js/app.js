@@ -141,6 +141,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  /* ---------- Toggle staff with no commitment covering today ---------- */
+  const zeroCommitmentToggle = document.getElementById('zeroCommitmentToggle');
+  const zeroCommitmentDetails = document.getElementById('zeroCommitmentDetails');
+  if (zeroCommitmentToggle && zeroCommitmentDetails) {
+    zeroCommitmentToggle.addEventListener('click', () => {
+      const expanded = zeroCommitmentToggle.getAttribute('aria-expanded') !== 'true';
+      zeroCommitmentToggle.setAttribute('aria-expanded', String(expanded));
+      zeroCommitmentDetails.hidden = !expanded;
+      if (expanded) zeroCommitmentDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  const teamZeroFilter = document.querySelector('[data-zero-commitment-team-filter]');
+  if (teamZeroFilter) {
+    const tableRows = document.querySelectorAll('tr[data-zero-commitment-today]');
+    const visibleCount = document.querySelector('[data-team-visible-count]');
+    const title = document.querySelector('[data-team-members-title]');
+    const reset = document.querySelector('[data-team-filter-reset]');
+    const emptyRow = document.querySelector('[data-team-filter-empty]');
+
+    const setFiltered = (filtered) => {
+      let count = 0;
+      tableRows.forEach(row => {
+        const visible = !filtered || row.dataset.zeroCommitmentToday === 'true';
+        row.hidden = !visible;
+        if (visible) count += 1;
+      });
+      if (visibleCount) visibleCount.textContent = count;
+      if (title) title.textContent = filtered ? 'Staff with Zero Commitments Today' : 'Team Members';
+      if (reset) reset.hidden = !filtered;
+      if (emptyRow) emptyRow.hidden = count !== 0;
+      teamZeroFilter.setAttribute('aria-pressed', String(filtered));
+    };
+
+    teamZeroFilter.addEventListener('click', () => {
+      setFiltered(teamZeroFilter.getAttribute('aria-pressed') !== 'true');
+    });
+    if (reset) reset.addEventListener('click', () => setFiltered(false));
+  }
+
   /* ---------- Progress bar animation ---------- */
   const animateBars = () => {
     document.querySelectorAll('.progress-bar-fill').forEach(bar => {

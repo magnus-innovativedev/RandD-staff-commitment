@@ -705,6 +705,44 @@ body.commitment-page-view .page-body {
   display: none;
 }
 
+.zero-commitment-toggle,
+.zero-commitment-team-toggle {
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.zero-commitment-details[hidden],
+[data-team-filter-empty][hidden] {
+  display: none;
+}
+
+.zero-commitment-manager + .zero-commitment-manager {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.zero-commitment-manager h3 {
+  margin-bottom: 8px;
+  font-family: var(--font-head);
+  font-size: .9rem;
+}
+
+.zero-commitment-manager ul {
+  padding-left: 20px;
+}
+
+.zero-commitment-manager li + li {
+  margin-top: 6px;
+}
+
+.zero-commitment-manager a {
+  color: var(--accent);
+}
+
 .stat-card::before {
   content: "";
   position: absolute;
