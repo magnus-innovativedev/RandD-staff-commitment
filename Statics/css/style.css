@@ -709,45 +709,34 @@ body.commitment-page-view .page-body {
 }
 
 .stat-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
+  width: 26px;
+  height: 26px;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background: transparent;
 }
 
 .stat-icon.purple {
-  background: var(--navy-soft);
   color: var(--navy);
 }
 
 .stat-icon.blue {
-  background: var(--accent-soft);
   color: var(--accent);
 }
 
 .stat-icon.green {
-  background: var(--teal-soft);
   color: var(--teal);
 }
 
 .stat-icon.amber {
-  background: var(--amber-soft);
   color: var(--amber);
 }
 
 .stat-icon.red {
-  background: var(--red-soft);
   color: var(--red);
-}
-
-.commitment-page-view .stat-icon {
-  width: 26px;
-  height: 26px;
-  border-radius: 0;
-  background: transparent;
 }
 
 .stat-value {
