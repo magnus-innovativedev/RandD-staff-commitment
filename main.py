@@ -30,7 +30,7 @@ CSRFProtect(app)
 def seed_developer():
     """On startup, create the developer account if none exists yet."""
     name = os.getenv("DEFAULT_DEV_NAME", "Developer")
-    email = os.getenv("DEFAULT_DEV_EMAIL", "developer@magnus")
+    email = os.getenv("DEFAULT_DEV_EMAIL")
     password = os.getenv("DEFAULT_DEV_PASSWORD")
     if not password:
         print("DEFAULT_DEV_PASSWORD is not set; skipping default developer creation.")
