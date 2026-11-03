@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}{{ code }} Error{% endblock %}
+{% block page_title %}Error {{ code }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="javascript:history.back()" class="btn btn-primary btn-back">
+  <i data-lucide="arrow-left" class="icon icon-arrow icon-arrow-left"></i> Go Back
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="error-wrap">
+  <div class="error-box">
+    <div class="error-icon">
+      {% if code == 403 %}<i data-lucide="lock" class="icon"></i>
+      {% elif code == 404 %}<i data-lucide="search-x" class="icon"></i>
+      {% else %}<i data-lucide="alert-triangle" class="icon"></i>{% endif %}
+    </div>
+    <h1 class="error-code">{{ code }}</h1>
+    <p class="error-msg">{{ message }}</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">
+      <i data-lucide="home" class="icon"></i> Home
+    </a>
+  </div>
+</div>
+{% endblock %}

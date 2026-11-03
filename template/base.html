@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}StaffTrack{% endblock %} — StaffTrack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230c1f3f'/><path d='M20 70 L35 45 L50 55 L65 30 L80 40' stroke='%23fbf6e9' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+  {% block head %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+
+    <button class="sidebar-toggle" id="sidebarToggle" title="Collapse sidebar" aria-label="Collapse sidebar">
+      <i data-lucide="chevron-left"></i>
+    </button>
+
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <i data-lucide="trending-up" class="icon-md" style="stroke:#fbf6e9;"></i>
+      </div>
+      <span class="brand-text">Staff<span>Track</span></span>
+    </div>
+
+    {% if g.user %}
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ g.user.name[0].upper() }}</div>
+      <div class="user-info">
+        <div class="u-name">{{ g.user.name }}</div>
+        <div class="u-role">{{ g.user.role | title }}</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <nav class="sidebar-nav">
+      {% if g.user %}
+
+      {% if g.user.role == 'developer' %}
+      <div class="nav-section-label">Administration</div>
+      <a class="nav-item" href="{{ url_for('add_user') }}" data-tooltip="Add CMO">
+        <span class="nav-icon"><i data-lucide="user-plus" class="icon"></i></span>
+        <span>Add CMO</span>
+      </a>
+      {% endif %}
+
+      {% if g.user.role == 'cmo' %}
+      <div class="nav-section-label">Overview</div>
+      <a class="nav-item" href="{{ url_for('cmo_overview') }}" data-tooltip="Dashboard">
+        <span class="nav-icon"><i data-lucide="layout-dashboard" class="icon"></i></span>
+        <span>Dashboard</span>
+      </a>
+
+      <div class="nav-section-label">Management</div>
+      <a class="nav-item" href="{{ url_for('add_user') }}" data-tooltip="Add Member">
+        <span class="nav-icon"><i data-lucide="user-plus" class="icon"></i></span>
+        <span>Add Member</span>
+      </a>
+      {% endif %}
+
+      {% if g.user.role == 'manager' %}
+      <div class="nav-section-label">My Work</div>
+      <a class="nav-item" href="{{ url_for('my') }}" data-tooltip="My Commitments">
+        <span class="nav-icon"><i data-lucide="clipboard-list" class="icon"></i></span>
+        <span>My Commitments</span>
+      </a>
+
+      <div class="nav-section-label">Team</div>
+      <a class="nav-item" href="{{ url_for('team') }}" data-tooltip="My Team">
+        <span class="nav-icon"><i data-lucide="users" class="icon"></i></span>
+        <span>My Team</span>
+      </a>
+      <a class="nav-item" href="{{ url_for('add_user') }}" data-tooltip="Add Staff">
+        <span class="nav-icon"><i data-lucide="user-plus" class="icon"></i></span>
+        <span>Add Staff</span>
+      </a>
+      {% endif %}
+
+      {% if g.user.role == 'staff' %}
+      <div class="nav-section-label">My Work</div>
+      <a class="nav-item" href="{{ url_for('my') }}" data-tooltip="My Commitments">
+        <span class="nav-icon"><i data-lucide="clipboard-list" class="icon"></i></span>
+        <span>My Commitments</span>
+      </a>
+      {% endif %}
+
+      <div class="nav-section-label">Account</div>
+      <form method="POST" action="{{ url_for('logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="nav-item w-full" data-tooltip="Logout">
+          <span class="nav-icon"><i data-lucide="log-out" class="icon"></i></span>
+          <span>Logout</span>
+        </button>
+      </form>
+
+      {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="nav-item" data-tooltip="Version 1.0">
+        <span class="nav-icon"><i data-lucide="zap" class="icon-sm"></i></span>
+        <span>v1.0</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main-wrapper" id="mainWrapper">
+
+    <header class="topbar">
+      <button class="btn btn-ghost btn-icon" id="hamburgerBtn" style="display:none;" title="Open menu"
+        aria-label="Open menu">
+        <i data-lucide="menu" class="icon"></i>
+      </button>
+      <div class="topbar-title">
+        {% block page_title %}Dashboard{% endblock %}
+        {% block breadcrumb %}<span class="breadcrumb"></span>{% endblock %}
+      </div>
+      <div class="topbar-actions">
+        {% block topbar_actions %}{% endblock %}
+      </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div style="padding:20px 32px 0;">
+      {% for category, message in messages %}
+      <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}" data-autodismiss>
+        <i data-lucide="{{ 'x-circle' if category == 'error' else 'check-circle-2' }}" class="icon"></i>
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <main class="page-body">
+      {% block content %}{% endblock %}
+    </main>
+
+  </div>
+
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+
+  <style>
+    @media (max-width:768px) {
+      #hamburgerBtn {
+        display: flex !important;
+      }
+
+      #sidebarToggle {
+        display: none;
+      }
+    }
+  </style>
+</body>
+
+</html>

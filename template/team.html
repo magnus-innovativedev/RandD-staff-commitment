@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Team — {{ manager.name }}{% endblock %}
+{% block page_title %}{{ manager.name }}'s Team{% endblock %}
+{% block breadcrumb %}
+<span class="breadcrumb">Manager &middot; Team commitments overview</span>
+{% endblock %}
+
+{% block topbar_actions %}
+{% if g.user.role == 'cmo' %}
+<a href="{{ url_for('cmo_overview') }}" class="btn btn-primary btn-back">
+  <i data-lucide="arrow-left" class="icon icon-arrow icon-arrow-left"></i> Back to Overview
+</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% set total = rows | sum(attribute='total') %}
+{% set done = rows | sum(attribute='completed') %}
+{% set late = rows | sum(attribute='late') %}
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon blue"><i data-lucide="users" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ rows | length }}</div>
+      <div class="stat-label">Team Members</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon purple"><i data-lucide="clipboard-list" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ total }}</div>
+      <div class="stat-label">Total Commitments</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green"><i data-lucide="check-circle-2" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ done }}</div>
+      <div class="stat-label">Completed</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red"><i data-lucide="alert-triangle" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ late }}</div>
+      <div class="stat-label">Late Commitments</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <i data-lucide="users" class="icon"></i>
+    <h2>Team Members</h2>
+    <div class="card-actions">
+      <span class="badge badge-gray">{{ rows | length }} members</span>
+    </div>
+  </div>
+
+  {% if rows %}
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th class="col-center">Attendance</th>
+          <th class="col-center">Commitments</th>
+          <th class="col-center">Missed</th>
+          <th class="col-center">Pending</th>
+          <th class="col-center">High Priority</th>
+          <th class="col-center">Late</th>
+          <th class="col-center">Completed</th>
+          <th>Avg Progress</th>
+          <th style="width:36px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr class="clickable-row" onclick="window.location='{{ url_for('user_view', uid=r.id) }}'" title="View {{ r.staff }}'s commitments">
+          <td>
+            <div class="person-card">
+              <div class="person-avatar">{{ r.staff[0].upper() }}</div>
+              <div class="person-name">{{ r.staff }}</div>
+            </div>
+          </td>
+          <td class="col-center">
+            {% if r.attendance_status == 'present' %}
+            <span class="badge att-present"><i data-lucide="check-circle-2"></i>Present</span>
+            {% elif r.attendance_status == 'wfh' %}
+            <span class="badge att-wfh"><i data-lucide="home"></i>WFH</span>
+            {% elif r.attendance_status == 'absent' %}
+            <span class="badge att-absent"><i data-lucide="x-circle"></i>Absent</span>
+            {% else %}
+            <span class="badge att-none"><i data-lucide="minus-circle"></i>Not Marked</span>
+            {% endif %}
+          </td>
+          <td class="col-center"><strong>{{ r.total }}</strong></td>
+          <td class="col-center"><span class="badge badge-red">{{ r.missed }}</span></td>
+          <td class="col-center"><span class="badge badge-gray">{{ r.pending }}</span></td>
+          <td class="col-center"><span class="badge badge-amber">{{ r.high }}</span></td>
+          <td class="col-center"><span class="badge badge-red">{{ r.late }}</span></td>
+          <td class="col-center"><span class="badge badge-green">{{ r.completed }}</span></td>
+          <td>
+            <div class="progress-wrap" style="min-width:140px;">
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" data-pct="{{ r.avg_completion_pct or 0 }}" style="width:0%"></div>
+              </div>
+              <span class="progress-pct">{{ r.avg_completion_pct or 0 }}%</span>
+            </div>
+          </td>
+          <td style="text-align:right; padding-right:16px;">
+            <i data-lucide="chevron-right" class="icon-sm row-chevron" style="color:var(--text-muted); transition:transform 0.2s ease, color 0.2s ease;"></i>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body">
+    <div class="empty-state">
+      <div class="empty-icon"><i data-lucide="user-round" class="icon"></i></div>
+      <h3>No team members yet</h3>
+      <p>Staff assigned to this manager will appear here.</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

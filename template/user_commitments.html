@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}{{ person.name }} — Commitments{% endblock %}
+{% block body_class %}commitment-page-view{% endblock %}
+{% block page_title %}
+<span class="profile-heading">
+  <span class="profile-avatar">{{ person.name[0].upper() }}</span>
+  <span>{{ person.name }}</span>
+</span>
+{% endblock %}
+{% block breadcrumb %}
+<span class="breadcrumb">
+  {{ person.role | title }} &middot;
+  {% if person.attendance_status == 'present' %}
+  <span class="banner-status present"><i data-lucide="check-circle-2"></i> Present today</span>
+  {% elif person.attendance_status == 'wfh' %}
+  <span class="banner-status wfh"><i data-lucide="home"></i> WFH today</span>
+  {% elif person.attendance_status == 'absent' %}
+  <span class="banner-status absent"><i data-lucide="x-circle"></i> Absent today</span>
+  {% else %}
+  <span class="banner-status none"><i data-lucide="minus-circle"></i> Attendance not marked</span>
+  {% endif %}
+  {% if g.user.role == 'cmo' %}
+  &middot; <a href="{{ url_for('cmo_overview') }}">Overview</a>
+  {% elif g.user.role == 'manager' %}
+  &middot; <a href="{{ url_for('team') }}">My Team</a>
+  {% endif %}
+  &middot; Commitments
+</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="commitment-page-layout">
+{% set total = commitments | length %}
+{% set done = commitments | selectattr('status','equalto','completed') | list | length %}
+{% set in_prog = commitments | selectattr('status','equalto','in_progress') | list | length %}
+{% set missed = commitments | selectattr('status','equalto','missed') | list | length %}
+
+<div class="profile-back-row">
+  {% if g.user.role == 'cmo' %}
+  <a href="{{ url_for('cmo_overview') }}" class="btn btn-primary btn-back">
+    <i data-lucide="arrow-left" class="icon icon-arrow icon-arrow-left"></i> Back to Overview
+  </a>
+  {% else %}
+  <a href="{{ url_for('team') }}" class="btn btn-primary btn-back">
+    <i data-lucide="arrow-left" class="icon icon-arrow icon-arrow-left"></i> Back to Team
+  </a>
+  {% endif %}
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon purple"><i data-lucide="clipboard-list" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ total }}</div>
+      <div class="stat-label">Total</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green"><i data-lucide="check-circle-2" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ done }}</div>
+      <div class="stat-label">Completed</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue"><i data-lucide="refresh-cw" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ in_prog }}</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red"><i data-lucide="alert-triangle" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ missed }}</div>
+      <div class="stat-label">Missed</div>
+    </div>
+  </div>
+</div>
+
+<div class="card commitment-list-card">
+  <div class="card-header">
+    <i data-lucide="pin" class="icon"></i>
+    <h2>Commitments</h2>
+    <div class="card-actions"><span class="badge badge-gray">{{ total }}</span></div>
+  </div>
+  <div class="card-body commitment-list-scroll">
+    {% if commitments %}
+    {% for c in commitments %}
+    <div class="commitment-item{% if c.status == 'missed' %} is-missed{% elif c.status == 'completed' %} is-completed{% endif %}">
+      <div class="commitment-top">
+        <div>
+          <div class="commitment-title">{{ c.commitment_text }}</div>
+          <div class="commitment-meta">
+            <span class="priority-dot priority-{{ c.priority }}"></span>
+            <span
+              class="badge badge-{% if c.priority=='high' %}red{% elif c.priority=='medium' %}amber{% else %}green{% endif %}">
+              {{ c.priority | title }}
+            </span>
+            <span
+              class="badge {% if c.status=='completed' %}badge-green{% elif c.status=='in_progress' %}badge-blue{% elif c.status=='missed' %}badge-red{% else %}badge-gray{% endif %}">
+              {{ c.status | replace('_',' ') | title }}
+            </span>
+            <span class="meta-chip">
+              <i data-lucide="calendar"></i>
+              {{ c.start_date.strftime('%d %b') }} – {{ c.end_date.strftime('%d %b %Y') }}
+            </span>
+          </div>
+          {% if c.description %}
+          <div class="text-muted mt-2">{{ c.description }}</div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="commitment-footer">
+        <div class="progress-wrap" style="flex:1;min-width:160px;">
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" data-pct="{{ c.completion_pct }}" style="width:0%"></div>
+          </div>
+          <span class="progress-pct">{{ c.completion_pct }}%</span>
+        </div>
+        <span class="meta-chip">
+          <i data-lucide="clock"></i>
+          Due {{ c.end_date.strftime('%d %b %Y') }}
+          {% if c.end_date < today and c.status not in ('completed','missed') %} <span class="badge badge-red"
+            style="margin-left:4px;">
+            <i data-lucide="alert-circle"></i>Overdue
+        </span>
+        {% endif %}
+        </span>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon"><i data-lucide="inbox" class="icon"></i></div>
+      <h3>No commitments</h3>
+      <p>{{ person.name }} hasn't added any commitments yet.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+</div>
+
+{% endblock %}

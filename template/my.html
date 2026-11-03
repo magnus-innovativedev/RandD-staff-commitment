@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}My Commitments{% endblock %}
+{% block body_class %}commitment-page-view{% endblock %}
+{% block page_title %}My Commitments{% endblock %}
+{% block breadcrumb %}<span class="breadcrumb">Track and manage your personal commitments</span>{% endblock %}
+
+{% block content %}
+
+<div class="commitment-page-layout">
+<!-- Attendance banner -->
+<div class="card banner mb-6">
+  <div class="card-body">
+    <div style="flex:1;min-width:220px;">
+      <div class="banner-title">Good day, {{ g.user.name.split()[0] }}</div>
+      <div class="banner-sub">
+        {{ today.strftime('%A, %d %B %Y') }}
+        {% if g.user.attendance_status == 'present' %}
+          &nbsp;·&nbsp;<span class="banner-status present"><i data-lucide="check-circle-2" class="icon"></i> Present today</span>
+        {% elif g.user.attendance_status == 'wfh' %}
+          &nbsp;·&nbsp;<span class="banner-status wfh"><i data-lucide="home" class="icon"></i> WFH today</span>
+        {% elif g.user.attendance_status == 'absent' %}
+          &nbsp;·&nbsp;<span class="banner-status absent"><i data-lucide="x-circle" class="icon"></i> Absent today</span>
+        {% else %}
+          &nbsp;·&nbsp;<span class="banner-status none">Not marked yet</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Professional Status Dropdown -->
+    <div class="attendance-dropdown-wrap" id="attendanceDropdownWrap">
+      <button type="button" class="attendance-pill-btn" id="attendancePillBtn" onclick="toggleAttendanceDropdown(event)">
+        {% if g.user.attendance_status == 'present' %}
+          <span class="status-dot dot-present"></span>
+          <span>Present</span>
+        {% elif g.user.attendance_status == 'wfh' %}
+          <span class="status-dot dot-wfh"></span>
+          <span>Work From Home</span>
+        {% elif g.user.attendance_status == 'absent' %}
+          <span class="status-dot dot-absent"></span>
+          <span>Absent</span>
+        {% else %}
+          <span class="status-dot dot-none"></span>
+          <span>Set Attendance</span>
+        {% endif %}
+        <i data-lucide="chevron-down" class="chevron-icon"></i>
+      </button>
+
+      <div class="attendance-popover" onclick="event.stopPropagation()">
+        <div class="attendance-popover-head">Select Today's Attendance</div>
+
+        <form method="POST" action="{{ url_for('set_attendance') }}" id="attendanceForm">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="attendance_status" id="attendanceStatusInput" value="">
+
+          <button type="button" class="attendance-opt-btn {% if g.user.attendance_status == 'present' %}active{% endif %}" onclick="selectAttendance('present')">
+            <div class="attendance-opt-icon opt-present">
+              <i data-lucide="check-circle-2" class="icon"></i>
+            </div>
+            <div class="attendance-opt-content">
+              <div class="attendance-opt-title">Present</div>
+              <div class="attendance-opt-desc">Working in office</div>
+            </div>
+            <i data-lucide="check" class="icon attendance-check"></i>
+          </button>
+
+          <button type="button" class="attendance-opt-btn {% if g.user.attendance_status == 'wfh' %}active{% endif %}" onclick="selectAttendance('wfh')">
+            <div class="attendance-opt-icon opt-wfh">
+              <i data-lucide="home" class="icon"></i>
+            </div>
+            <div class="attendance-opt-content">
+              <div class="attendance-opt-title">Work From Home</div>
+              <div class="attendance-opt-desc">Working remotely</div>
+            </div>
+            <i data-lucide="check" class="icon attendance-check"></i>
+          </button>
+
+          <button type="button" class="attendance-opt-btn {% if g.user.attendance_status == 'absent' %}active{% endif %}" onclick="selectAttendance('absent')">
+            <div class="attendance-opt-icon opt-absent">
+              <i data-lucide="x-circle" class="icon"></i>
+            </div>
+            <div class="attendance-opt-content">
+              <div class="attendance-opt-title">Absent</div>
+              <div class="attendance-opt-desc">On leave / away</div>
+            </div>
+            <i data-lucide="check" class="icon attendance-check"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% set total = commitments | length %}
+{% set done = commitments | selectattr('status','equalto','completed') | list | length %}
+{% set in_prog = commitments | selectattr('status','equalto','in_progress') | list | length %}
+{% set missed = commitments | selectattr('status','equalto','missed') | list | length %}
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon purple"><i data-lucide="clipboard-list" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ total }}</div>
+      <div class="stat-label">Total</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green"><i data-lucide="check-circle-2" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ done }}</div>
+      <div class="stat-label">Completed</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue"><i data-lucide="refresh-cw" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ in_prog }}</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red"><i data-lucide="alert-circle" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ missed }}</div>
+      <div class="stat-label">Missed</div>
+    </div>
+  </div>
+</div>
+
+<div class="card commitment-list-card">
+  <div class="card-header">
+    <i data-lucide="pin" class="icon"></i>
+    <h2>All Commitments</h2>
+    <div class="card-actions">
+      <span class="badge badge-gray">{{ total }} items</span>
+      <button type="button" class="btn btn-primary btn-sm" onclick="openModal('addModal')">
+        <i data-lucide="plus" class="icon"></i> Add Commitment
+      </button>
+    </div>
+  </div>
+  <div class="card-body commitment-list-scroll">
+    {% if commitments %}
+    {% for c in commitments %}
+    <div class="commitment-item{% if c.status == 'missed' %} is-missed{% elif c.status == 'completed' %} is-completed{% endif %}">
+      <div class="commitment-top">
+        <div style="flex:1;">
+          <div class="commitment-title">{{ c.commitment_text }}</div>
+          <div class="commitment-meta">
+            <span class="priority-dot priority-{{ c.priority }}"></span>
+            <span
+              class="badge badge-{% if c.priority=='high' %}red{% elif c.priority=='medium' %}amber{% else %}green{% endif %}">
+              {{ c.priority | title }}
+            </span>
+            <span
+              class="badge {% if c.status=='completed' %}badge-green{% elif c.status=='in_progress' %}badge-blue{% elif c.status=='missed' %}badge-red{% else %}badge-gray{% endif %}">
+              {{ c.status | replace('_',' ') | title }}
+            </span>
+            <span class="meta-chip">
+              <i data-lucide="calendar"></i>
+              {{ c.start_date.strftime('%d %b') }} – {{ c.end_date.strftime('%d %b %Y') }}
+            </span>
+            {% if c.duration_days %}
+            <span class="meta-chip">
+              <i data-lucide="clock"></i>
+              {{ c.duration_days }}d
+            </span>
+            {% endif %}
+          </div>
+          {% if c.description %}
+          <div class="text-muted mt-2">{{ c.description }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="commitment-footer">
+        <div class="commitment-progress-area">
+          <form method="POST" action="{{ url_for('update_progress', cid=c.id) }}"
+            class="commitment-progress-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="range" name="completion_pct" value="{{ c.completion_pct }}" min="0" max="100"
+              class="commitment-progress-slider" aria-label="Commitment progress"
+              title="Drag to update progress">
+            <output class="progress-pct">{{ c.completion_pct }}%</output>
+          </form>
+          <span class="commitment-auto-save">Drag to update progress</span>
+        </div>
+
+        <div class="commitment-controls">
+          {% if c.status != 'completed' %}
+          <form method="POST" action="{{ url_for('update_progress', cid=c.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="completion_pct" value="100">
+            <button class="btn btn-success btn-sm" type="submit">
+              <i data-lucide="check" class="icon"></i> Mark Complete
+            </button>
+          </form>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon"><i data-lucide="inbox" class="icon"></i></div>
+      <h3>No commitments yet</h3>
+      <p>Click below to create your first commitment.</p>
+      <button type="button" class="btn btn-primary" onclick="openModal('addModal')" style="margin-top: 14px;">
+        <i data-lucide="plus" class="icon"></i> Add Commitment
+      </button>
+    </div>
+    {% endif %}
+  </div>
+</div>
+</div>
+
+<!-- ADD COMMITMENT MODAL -->
+<div id="addModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <i data-lucide="plus-circle" class="icon"></i>
+      <h3>Add Commitment</h3>
+      <button type="button" onclick="closeModal('addModal')" class="btn btn-ghost btn-icon" aria-label="Close">
+        <i data-lucide="x" class="icon"></i>
+      </button>
+    </div>
+    <form method="POST" action="{{ url_for('add_commitment') }}" class="modal-body">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-group mb-4">
+        <label>Commitment *</label>
+        <input type="text" name="commitment_text" class="form-control" placeholder="What will you commit to?" required>
+      </div>
+      <div class="form-group mb-4">
+        <label>Description</label>
+        <textarea name="description" class="form-control" placeholder="Optional details"></textarea>
+      </div>
+      <div class="form-grid mb-4">
+        <div class="form-group">
+          <label>Start Date *</label>
+          <input type="date" name="start_date" class="form-control" value="{{ today }}" required>
+        </div>
+        <div class="form-group">
+          <label>End Date *</label>
+          <input type="date" name="end_date" class="form-control" required>
+        </div>
+      </div>
+      <div class="form-group mb-4">
+        <label>Priority</label>
+        <select name="priority" class="form-control">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('addModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">
+          <i data-lucide="plus" class="icon"></i> Add Commitment
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleAttendanceDropdown(e) {
+    if (e) e.stopPropagation();
+    const wrap = document.getElementById('attendanceDropdownWrap');
+    if (!wrap) return;
+    wrap.classList.toggle('open');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  function selectAttendance(status) {
+    const input = document.getElementById('attendanceStatusInput');
+    const form = document.getElementById('attendanceForm');
+    if (input && form) {
+      input.value = status;
+      form.submit();
+    }
+  }
+
+  document.addEventListener('click', function(e) {
+    const wrap = document.getElementById('attendanceDropdownWrap');
+    if (wrap && !wrap.contains(e.target)) {
+      wrap.classList.remove('open');
+    }
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}CMO Overview{% endblock %}
+{% block page_title %}Organisation Overview{% endblock %}
+{% block breadcrumb %}<span class="breadcrumb">All managers and their teams at a glance</span>{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('add_user') }}" class="btn btn-primary btn-sm">
+  <i data-lucide="user-plus" class="icon"></i> Add Member
+</a>
+{% endblock %}
+
+{% block content %}
+
+{% set total_teams = rows | length %}
+{% set total_staff = rows | sum(attribute='team_size') %}
+{% set total_commits = rows | sum(attribute='total') %}
+{% set total_done = rows | sum(attribute='completed') %}
+{% set total_missed = rows | sum(attribute='missed') %}
+{% set total_present = rows | sum(attribute='present') %}
+{% set total_wfh = rows | sum(attribute='wfh') %}
+{% set total_absent = rows | sum(attribute='absent') %}
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon purple"><i data-lucide="building-2" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ total_teams }}</div>
+      <div class="stat-label">Managers</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue"><i data-lucide="users" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ total_staff }}</div>
+      <div class="stat-label">Total Staff</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green"><i data-lucide="user-check" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ total_present }}</div>
+      <div class="stat-label">Present Today</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon amber"><i data-lucide="home" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ total_wfh }}</div>
+      <div class="stat-label">WFH Today</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red"><i data-lucide="user-x" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ total_absent }}</div>
+      <div class="stat-label">Absent Today</div>
+    </div>
+  </div>
+</div>
+
+<h2 class="section-label">Managers &amp; Teams</h2>
+
+{% if rows %}
+{% for r in rows %}
+<div class="manager-block">
+
+  <a href="{{ url_for('team', manager_id=r.id) }}" class="manager-header" id="mhdr-{{ r.id }}"
+    aria-label="View {{ r.manager }}'s team">
+    <div class="m-avatar">{{ r.manager[0].upper() }}</div>
+    <div class="m-info">
+      <div class="m-name">{{ r.manager }}</div>
+      <div class="m-sub">Manager &middot; {{ r.team_size }} staff member{{ 's' if r.team_size != 1 }}</div>
+    </div>
+
+    <div class="m-stats">
+      <div class="m-stat">
+        <span class="m-stat-val">{{ r.total }}</span>
+        <span class="m-stat-lbl">Tasks</span>
+      </div>
+      <div class="m-stat">
+        <span class="m-stat-val" style="color:var(--teal);">{{ r.completed }}</span>
+        <span class="m-stat-lbl">Done</span>
+      </div>
+      <div class="m-stat">
+        <span class="m-stat-val" style="color:var(--red);">{{ r.missed }}</span>
+        <span class="m-stat-lbl">Missed</span>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span class="badge att-present"><i data-lucide="check-circle-2"></i>{{ r.present }}</span>
+        <span class="badge att-wfh"><i data-lucide="home"></i>{{ r.wfh }}</span>
+        <span class="badge att-absent"><i data-lucide="x-circle"></i>{{ r.absent }}</span>
+      </div>
+      <div class="progress-wrap" style="width:130px;">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" data-pct="{{ r.avg_completion_pct or 0 }}" style="width:0%"></div>
+        </div>
+        <span class="progress-pct">{{ r.avg_completion_pct or 0 }}%</span>
+      </div>
+    </div>
+
+    <i data-lucide="chevron-right" class="icon m-chevron"></i>
+  </a>
+</div>
+{% endfor %}
+{% else %}
+<div class="card">
+  <div class="card-body">
+    <div class="empty-state">
+      <div class="empty-icon"><i data-lucide="building-2" class="icon"></i></div>
+      <h3>No managers yet</h3>
+      <p>Add managers from the <a href="{{ url_for('add_user') }}">Add Member</a> page.</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

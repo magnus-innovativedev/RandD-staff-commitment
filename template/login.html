@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — StaffTrack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230c1f3f'/><path d='M20 70 L35 45 L50 55 L65 30 L80 40' stroke='%23fbf6e9' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+</head>
+
+<body>
+  <div class="login-page">
+    <div class="login-box">
+
+      <div class="login-logo">
+        <i data-lucide="trending-up" style="width:26px;height:26px;stroke:#fbf6e9;stroke-width:1.9;"></i>
+      </div>
+      <h1>StaffTrack</h1>
+      <p class="login-sub">Sign in to your workspace</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+        <i data-lucide="{{ 'x-circle' if category == 'error' else 'check-circle-2' }}" class="icon"></i>
+        {{ message }}
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('login') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-group mb-4">
+          <label for="email">Email address</label>
+          <div class="input-icon">
+            <i data-lucide="mail" class="icon"></i>
+            <input type="email" id="email" name="email" class="form-control" placeholder="you@company.com" required
+              autofocus>
+          </div>
+        </div>
+
+        <div class="form-group mb-4">
+          <label for="password">Password</label>
+          <div class="input-icon">
+            <i data-lucide="lock" class="icon"></i>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password"
+              required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full" style="padding:12px;margin-top:6px;">
+          <i data-lucide="log-in" class="icon"></i>
+          Sign In
+        </button>
+      </form>
+
+      <p class="text-muted" style="text-align:center;margin-top:22px;font-size:.78rem;">
+        Contact your administrator if you need access.
+      </p>
+    </div>
+  </div>
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>

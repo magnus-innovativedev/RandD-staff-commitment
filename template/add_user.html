@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Members{% endblock %}
+{% block page_title %}
+{% if g.user.role == 'developer' %}Add CMO{% elif g.user.role == 'cmo' %}Manage Team Members{% else %}Manage Staff{% endif %}
+{% endblock %}
+{% block breadcrumb %}<span class="breadcrumb">Review team members, update passwords and manage access</span>{% endblock %}
+
+{% block topbar_actions %}
+<button type="button" class="btn btn-primary btn-sm" onclick="openAddMemberModal()">
+  <i data-lucide="user-plus" class="icon"></i>
+  {% if g.user.role == 'developer' %}Add CMO{% elif g.user.role == 'cmo' %}Add Member{% else %}Add Staff{% endif %}
+</button>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header & Add Button -->
+<div class="mb-4" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+  <div>
+    <h2 style="font-family: var(--font-head); font-size: 1.15rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: .4px;">
+      {% if g.user.role == 'developer' %}CMO Accounts Under You{% elif g.user.role == 'cmo' %}Members Under Your Supervision{% else %}Staff Members Reporting to You{% endif %}
+    </h2>
+    <span class="text-muted" style="font-size: .8rem;">Manage account credentials, view real-time status, and oversee your team</span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <span class="badge badge-gray" style="font-size: .75rem; padding: 6px 14px;">
+      {{ subordinates | length }} {{ 'Member' if subordinates | length == 1 else 'Members' }}
+    </span>
+    <button type="button" class="btn btn-primary btn-sm" onclick="openAddMemberModal()">
+      <i data-lucide="user-plus" class="icon"></i>
+      {% if g.user.role == 'developer' %}Add CMO{% elif g.user.role == 'cmo' %}Add Member{% else %}Add Staff{% endif %}
+    </button>
+  </div>
+</div>
+
+<!-- Subordinate Cards Grid -->
+{% if subordinates %}
+<div class="subordinate-grid mb-6">
+  {% for u in subordinates %}
+  <div class="subordinate-card">
+    <div class="subordinate-card-header">
+      <div class="subordinate-avatar">
+        {{ u.name[0].upper() }}
+      </div>
+      <div style="overflow: hidden; flex: 1;">
+        <div style="font-family: var(--font-head); font-weight: 700; font-size: .95rem; color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          {{ u.name }}
+        </div>
+        <div style="margin-top: 2px;">
+          {% if u.role == 'cmo' %}
+            <span class="badge badge-purple">CMO</span>
+          {% elif u.role == 'manager' %}
+            <span class="badge badge-blue">Manager</span>
+          {% elif u.role == 'staff' %}
+            <span class="badge badge-green">Staff</span>
+          {% else %}
+            <span class="badge badge-gray">{{ u.role | title }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="subordinate-card-body">
+      <div class="subordinate-info-row" title="{{ u.email }}">
+        <i data-lucide="mail" class="icon"></i>
+        <span>{{ u.email }}</span>
+      </div>
+
+      <div class="subordinate-info-row">
+        <i data-lucide="calendar-check" class="icon"></i>
+        <span>Attendance:</span>
+        {% if u.attendance_status == 'present' %}
+          <span class="badge att-present" style="padding: 2px 8px; font-size: .62rem;">
+            <i data-lucide="check-circle" style="width: 11px; height: 11px;"></i> Present
+          </span>
+        {% elif u.attendance_status == 'wfh' %}
+          <span class="badge att-wfh" style="padding: 2px 8px; font-size: .62rem;">
+            <i data-lucide="home" style="width: 11px; height: 11px;"></i> WFH
+          </span>
+        {% elif u.attendance_status == 'absent' %}
+          <span class="badge att-absent" style="padding: 2px 8px; font-size: .62rem;">
+            <i data-lucide="x-circle" style="width: 11px; height: 11px;"></i> Absent
+          </span>
+        {% else %}
+          <span class="badge att-none" style="padding: 2px 8px; font-size: .62rem;">
+            Not Marked
+          </span>
+        {% endif %}
+      </div>
+
+      {% if u.role == 'staff' and u.manager %}
+      <div class="subordinate-info-row">
+        <i data-lucide="git-branch" class="icon"></i>
+        <span>Reports to: <strong>{{ u.manager.name }}</strong></span>
+      </div>
+      {% endif %}
+
+      <div class="subordinate-info-row">
+        <i data-lucide="clipboard-list" class="icon"></i>
+        <span>Commitments: <strong>{{ u.commitments | length }}</strong></span>
+      </div>
+    </div>
+
+    <div class="subordinate-card-footer">
+      <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+        <!-- Update Password Button -->
+        <button type="button" class="btn btn-ghost btn-sm" onclick="openPasswordModal('{{ u.id }}', '{{ u.name | escape }}')">
+          <i data-lucide="key-round" class="icon"></i> Password
+        </button>
+
+        {% if u.role in ['manager', 'staff'] %}
+        <!-- View Commitments Button -->
+        <a href="{{ url_for('user_view', uid=u.id) }}" class="btn btn-ghost btn-sm">
+          <i data-lucide="external-link" class="icon"></i> View
+        </a>
+        {% endif %}
+      </div>
+
+      <!-- Delete User Form -->
+      <form method="POST" action="{{ url_for('delete_subordinate_user', uid=u.id) }}"
+            data-confirm="Are you sure you want to delete {{ u.name }}? All their data and commitments will be permanently removed.">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger btn-sm" title="Delete {{ u.name }}">
+          <i data-lucide="trash-2" class="icon"></i> Delete
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card mb-6">
+  <div class="card-body">
+    <div class="empty-state">
+      <i data-lucide="users" class="icon-2xl" style="stroke: #cbd5e1; stroke-width: 1.25; margin-bottom: 12px;"></i>
+      <h3>No members under your supervision yet</h3>
+      <p>Click the button below to add your first team member.</p>
+      <button type="button" class="btn btn-primary" onclick="openAddMemberModal()" style="margin-top: 14px;">
+        <i data-lucide="user-plus" class="icon"></i>
+        {% if g.user.role == 'developer' %}Add First CMO{% elif g.user.role == 'cmo' %}Add First Member{% else %}Add First Staff{% endif %}
+      </button>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ===== ADD MEMBER MODAL ===== -->
+<div id="addMemberModal" class="modal-backdrop" style="display:none;">
+  <div class="modal" style="max-width: 580px;">
+    <div class="modal-head">
+      <i data-lucide="user-plus" class="icon"></i>
+      <h3>
+        {% if g.user.role == 'developer' %}Add New CMO{% elif g.user.role == 'cmo' %}Add New Member{% else %}Add New Staff{% endif %}
+      </h3>
+      <button type="button" onclick="closeAddMemberModal()" class="btn btn-ghost btn-icon">
+        <i data-lucide="x" class="icon"></i>
+      </button>
+    </div>
+    <form method="POST" action="{{ url_for('add_user') }}" class="modal-body">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-grid mb-4">
+        <div class="form-group">
+          <label for="name">Full Name *</label>
+          <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Jane Doe" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" name="email" class="form-control" placeholder="jane@company.com" required>
+        </div>
+      </div>
+
+      <div class="form-group mb-4">
+        <label for="password">Password *</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Min. 6 characters"
+          required minlength="6">
+      </div>
+
+      {% if g.user.role == 'cmo' %}
+      <div class="form-group mb-4">
+        <label for="role">Role *</label>
+        <select id="role" name="role" class="form-control" onchange="toggleManagerField(this.value)">
+          <option value="">Select role</option>
+          <option value="manager">Manager</option>
+          <option value="staff">Staff</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-4" id="managerField" style="display:none;">
+        <label for="manager_id">Assign to Manager *</label>
+        <select id="manager_id" name="manager_id" class="form-control">
+          <option value="">Select manager</option>
+          {% for m in managers %}
+          <option value="{{ m.id }}">{{ m.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      {% if g.user.role == 'developer' %}
+      <div class="alert alert-info mb-4">
+        <i data-lucide="info" class="icon"></i>
+        As Developer, you create and manage Chief Management Officer (CMO) accounts.
+      </div>
+      {% endif %}
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeAddMemberModal()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary">
+          <i data-lucide="plus" class="icon"></i> Create Account
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== UPDATE PASSWORD MODAL ===== -->
+<div id="passwordModal" class="modal-backdrop" style="display:none;">
+  <div class="modal" style="max-width: 460px;">
+    <div class="modal-head">
+      <i data-lucide="key-round" class="icon"></i>
+      <h3 id="modalUserName">Update Password</h3>
+      <button type="button" onclick="closePasswordModal()" class="btn btn-ghost btn-icon">
+        <i data-lucide="x" class="icon"></i>
+      </button>
+    </div>
+    <form id="passwordForm" method="POST" action="" class="modal-body">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-group mb-4">
+        <label for="new_password">New Password *</label>
+        <input type="password" id="new_password" name="password" class="form-control" placeholder="Enter new password (min. 6 characters)" required minlength="6">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closePasswordModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">
+          <i data-lucide="save" class="icon"></i> Save Password
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleManagerField(role) {
+    const mf = document.getElementById('managerField');
+    if (!mf) return;
+    mf.style.display = role === 'staff' ? 'flex' : 'none';
+    const mSelect = document.getElementById('manager_id');
+    if (mSelect) {
+      mSelect.required = role === 'staff';
+    }
+  }
+
+  /* Add Member Modal */
+  function openAddMemberModal() {
+    const modal = document.getElementById('addMemberModal');
+    modal.style.display = 'flex';
+    const nameInput = document.getElementById('name');
+    if (nameInput) nameInput.focus();
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  function closeAddMemberModal() {
+    const modal = document.getElementById('addMemberModal');
+    modal.style.display = 'none';
+  }
+
+  /* Password Modal */
+  function openPasswordModal(userId, userName) {
+    const modal = document.getElementById('passwordModal');
+    const form = document.getElementById('passwordForm');
+    const title = document.getElementById('modalUserName');
+    const passwordInput = document.getElementById('new_password');
+
+    form.action = '/users/' + userId + '/password';
+    title.textContent = 'Password: ' + userName;
+    passwordInput.value = '';
+    modal.style.display = 'flex';
+    passwordInput.focus();
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  function closePasswordModal() {
+    const modal = document.getElementById('passwordModal');
+    modal.style.display = 'none';
+  }
+
+  /* Close modals when clicking backdrop */
+  window.addEventListener('click', function(e) {
+    const addModal = document.getElementById('addMemberModal');
+    const pwdModal = document.getElementById('passwordModal');
+    if (e.target === addModal) closeAddMemberModal();
+    if (e.target === pwdModal) closePasswordModal();
+  });
+</script>
+
+{% endblock %}
