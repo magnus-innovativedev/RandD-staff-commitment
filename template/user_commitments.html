@@ -50,46 +50,46 @@
 </div>
 
 <div class="stats-grid">
-  <div class="stat-card">
+  <button type="button" class="stat-card commitment-filter-card" data-commitment-filter="all" aria-controls="commitment-list" aria-pressed="true">
     <div class="stat-icon purple"><i data-lucide="clipboard-list" class="icon"></i></div>
     <div>
       <div class="stat-value">{{ total }}</div>
       <div class="stat-label">Total</div>
     </div>
-  </div>
-  <div class="stat-card">
+  </button>
+  <button type="button" class="stat-card commitment-filter-card" data-commitment-filter="completed" aria-controls="commitment-list" aria-pressed="false">
     <div class="stat-icon green"><i data-lucide="check-circle-2" class="icon"></i></div>
     <div>
       <div class="stat-value">{{ done }}</div>
       <div class="stat-label">Completed</div>
     </div>
-  </div>
-  <div class="stat-card">
+  </button>
+  <button type="button" class="stat-card commitment-filter-card" data-commitment-filter="in_progress" aria-controls="commitment-list" aria-pressed="false">
     <div class="stat-icon blue"><i data-lucide="refresh-cw" class="icon"></i></div>
     <div>
       <div class="stat-value">{{ in_prog }}</div>
       <div class="stat-label">In Progress</div>
     </div>
-  </div>
-  <div class="stat-card">
+  </button>
+  <button type="button" class="stat-card commitment-filter-card" data-commitment-filter="missed" aria-controls="commitment-list" aria-pressed="false">
     <div class="stat-icon red"><i data-lucide="alert-triangle" class="icon"></i></div>
     <div>
       <div class="stat-value">{{ missed }}</div>
       <div class="stat-label">Missed</div>
     </div>
-  </div>
+  </button>
 </div>
 
 <div class="card commitment-list-card">
   <div class="card-header">
     <i data-lucide="pin" class="icon"></i>
-    <h2>Commitments</h2>
-    <div class="card-actions"><span class="badge badge-gray">{{ total }}</span></div>
+    <h2 data-commitment-list-title>All Commitments</h2>
+    <div class="card-actions"><span class="badge badge-gray"><span data-commitment-visible-count>{{ total }}</span> items</span></div>
   </div>
-  <div class="card-body commitment-list-scroll">
+  <div class="card-body commitment-list-scroll" id="commitment-list">
     {% if commitments %}
     {% for c in commitments %}
-    <div class="commitment-item{% if c.status == 'missed' %} is-missed{% elif c.status == 'completed' %} is-completed{% endif %}">
+    <div class="commitment-item{% if c.status == 'missed' %} is-missed{% elif c.status == 'completed' %} is-completed{% endif %}" data-commitment-status="{{ c.status }}">
       <div class="commitment-top">
         <div>
           <div class="commitment-title">{{ c.commitment_text }}</div>
@@ -132,6 +132,10 @@
       </div>
     </div>
     {% endfor %}
+    <div class="empty-state commitment-filter-empty" hidden>
+      <h3>No matching commitments</h3>
+      <p>There are no commitments with this status.</p>
+    </div>
     {% else %}
     <div class="empty-state">
       <div class="empty-icon"><i data-lucide="inbox" class="icon"></i></div>

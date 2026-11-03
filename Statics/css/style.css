@@ -685,6 +685,26 @@ body.commitment-page-view .page-body {
   transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
 }
 
+.commitment-filter-card {
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.commitment-filter-card[aria-pressed="true"] {
+  border-color: var(--accent);
+}
+
+.commitment-item[hidden] {
+  display: none;
+}
+
+.commitment-filter-empty[hidden] {
+  display: none;
+}
+
 .stat-card::before {
   content: "";
   position: absolute;

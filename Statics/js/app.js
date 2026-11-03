@@ -107,6 +107,40 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  /* ---------- Filter commitments from the summary cards ---------- */
+  document.querySelectorAll('.commitment-page-layout').forEach(page => {
+    const filters = page.querySelectorAll('.commitment-filter-card');
+    const items = page.querySelectorAll('.commitment-item[data-commitment-status]');
+    if (!filters.length || !items.length) return;
+
+    const list = page.querySelector('.commitment-list-scroll');
+    const title = page.querySelector('[data-commitment-list-title]');
+    const visibleCount = page.querySelector('[data-commitment-visible-count]');
+    const emptyState = page.querySelector('.commitment-filter-empty');
+
+    filters.forEach(filter => {
+      filter.addEventListener('click', () => {
+        const status = filter.dataset.commitmentFilter;
+        const label = filter.querySelector('.stat-label').textContent.trim();
+        let count = 0;
+
+        filters.forEach(card => {
+          card.setAttribute('aria-pressed', String(card === filter));
+        });
+        items.forEach(item => {
+          const visible = status === 'all' || item.dataset.commitmentStatus === status;
+          item.hidden = !visible;
+          if (visible) count += 1;
+        });
+
+        if (title) title.textContent = status === 'all' ? 'All Commitments' : `${label} Commitments`;
+        if (visibleCount) visibleCount.textContent = count;
+        if (emptyState) emptyState.hidden = count !== 0;
+        if (list) list.scrollTop = 0;
+      });
+    });
+  });
+
   /* ---------- Progress bar animation ---------- */
   const animateBars = () => {
     document.querySelectorAll('.progress-bar-fill').forEach(bar => {
