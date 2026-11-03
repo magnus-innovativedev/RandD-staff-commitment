@@ -17,6 +17,8 @@
 {% set total_commits = rows | sum(attribute='total') %}
 {% set total_done = rows | sum(attribute='completed') %}
 {% set total_missed = rows | sum(attribute='missed') %}
+{% set total_added_today = rows | sum(attribute='added_today') %}
+{% set total_existing_today = rows | sum(attribute='existing_today') %}
 {% set total_present = rows | sum(attribute='present') %}
 {% set total_wfh = rows | sum(attribute='wfh') %}
 {% set total_absent = rows | sum(attribute='absent') %}
@@ -57,6 +59,20 @@
       <div class="stat-label">Absent Today</div>
     </div>
   </div>
+  <div class="stat-card">
+    <div class="stat-icon blue"><i data-lucide="plus-circle" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ total_added_today }}</div>
+      <div class="stat-label">Commitments Added Today</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon amber"><i data-lucide="calendar-check" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ total_existing_today }}</div>
+      <div class="stat-label">Already Planned Today</div>
+    </div>
+  </div>
 </div>
 
 <h2 class="section-label">Managers &amp; Teams</h2>
@@ -71,6 +87,9 @@
     <div class="m-info">
       <div class="m-name">{{ r.manager }}</div>
       <div class="m-sub">Manager &middot; {{ r.team_size }} staff member{{ 's' if r.team_size != 1 }}</div>
+      <div class="m-today-mobile">
+        Added today: {{ r.added_today }} &middot; Planned today: {{ r.existing_today }}
+      </div>
     </div>
 
     <div class="m-stats">
@@ -85,6 +104,14 @@
       <div class="m-stat">
         <span class="m-stat-val" style="color:var(--red);">{{ r.missed }}</span>
         <span class="m-stat-lbl">Missed</span>
+      </div>
+      <div class="m-stat">
+        <span class="m-stat-val">{{ r.added_today }}</span>
+        <span class="m-stat-lbl">Added Today</span>
+      </div>
+      <div class="m-stat">
+        <span class="m-stat-val">{{ r.existing_today }}</span>
+        <span class="m-stat-lbl">Planned Today</span>
       </div>
       <div style="display:flex;gap:6px;align-items:center;">
         <span class="badge att-present"><i data-lucide="check-circle-2"></i>{{ r.present }}</span>
