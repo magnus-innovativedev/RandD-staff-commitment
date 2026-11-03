@@ -15,7 +15,7 @@
 
 {% block content %}
 
-<!-- Header & Add Button -->
+<!-- Member list heading -->
 <div class="mb-4" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
   <div>
     <h2 style="font-family: var(--font-head); font-size: 1.15rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: .4px;">
@@ -23,14 +23,10 @@
     </h2>
     <span class="text-muted" style="font-size: .8rem;">Manage account credentials, view real-time status, and oversee your team</span>
   </div>
-  <div style="display: flex; align-items: center; gap: 10px;">
+  <div>
     <span class="badge badge-gray" style="font-size: .75rem; padding: 6px 14px;">
       {{ subordinates | length }} {{ 'Member' if subordinates | length == 1 else 'Members' }}
     </span>
-    <button type="button" class="btn btn-primary btn-sm" onclick="openAddMemberModal()">
-      <i data-lucide="user-plus" class="icon"></i>
-      {% if g.user.role == 'developer' %}Add CMO{% elif g.user.role == 'cmo' %}Add Member{% else %}Add Staff{% endif %}
-    </button>
   </div>
 </div>
 
@@ -135,11 +131,7 @@
     <div class="empty-state">
       <i data-lucide="users" class="icon-2xl" style="stroke: #cbd5e1; stroke-width: 1.25; margin-bottom: 12px;"></i>
       <h3>No members under your supervision yet</h3>
-      <p>Click the button below to add your first team member.</p>
-      <button type="button" class="btn btn-primary" onclick="openAddMemberModal()" style="margin-top: 14px;">
-        <i data-lucide="user-plus" class="icon"></i>
-        {% if g.user.role == 'developer' %}Add First CMO{% elif g.user.role == 'cmo' %}Add First Member{% else %}Add First Staff{% endif %}
-      </button>
+      <p>Use the Add button at the top of the page to add your first team member.</p>
     </div>
   </div>
 </div>
