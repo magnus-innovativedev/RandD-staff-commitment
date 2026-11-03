@@ -276,11 +276,6 @@ def cmo_summary(cmo_id):
                COUNT(c.id) FILTER (
                    WHERE c.created_at::date = CURRENT_DATE
                ) AS added_today,
-               COUNT(c.id) FILTER (
-                   WHERE c.start_date <= CURRENT_DATE
-                     AND c.end_date >= CURRENT_DATE
-                     AND c.created_at::date < CURRENT_DATE
-               ) AS existing_today,
                ROUND(AVG(c.completion_pct), 1) AS avg_completion_pct,
                COUNT(DISTINCT s.id) FILTER (WHERE s.attendance_status = 'present') AS present,
                COUNT(DISTINCT s.id) FILTER (WHERE s.attendance_status = 'wfh') AS wfh,
