@@ -57,6 +57,7 @@ def load_user():
     g.user = None
     if request.endpoint == "static":
         return
+    Db.reset_attendance()
     uid = session.get("user_id")
     if uid:
         try:
@@ -340,7 +341,7 @@ def create_user_cmd(name, email, password, role, manager_id):
 
 @app.cli.command("daily-jobs")
 def daily_jobs():
-    """Run once a day (cron): mark overdue as missed, reset attendance."""
+    """Run once a day (cron): mark overdue commitments and check attendance reset."""
     Db.mark_overdue_as_missed()
     Db.reset_attendance()
     click.echo("Daily jobs done")

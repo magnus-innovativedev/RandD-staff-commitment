@@ -14,6 +14,7 @@ _query_cache = {}
 _query_cache_lock = RLock()
 _query_cache_generation = 0
 _overdue_status_checked_on = None
+_attendance_reset_checked_on = None
 
 
 def init_db(app):
@@ -340,5 +341,46 @@ def mark_overdue_as_missed():
 
 
 def reset_attendance():
-    db.session.execute(text("UPDATE users SET attendance_status = NULL"))
-    _commit()
+    """Reset attendance once per app-local day, without clearing today's marks."""
+    global _attendance_reset_checked_on
+    today = date.today()
+    with _query_cache_lock:
+        if _attendance_reset_checked_on == today:
+            return False
+
+        try:
+            db.session.execute(text("""
+                CREATE TABLE IF NOT EXISTS attendance_reset_state (
+                    id SMALLINT PRIMARY KEY CHECK (id = 1),
+                    reset_on DATE NOT NULL
+                )
+            """))
+            initialized = db.session.execute(text("""
+                INSERT INTO attendance_reset_state (id, reset_on)
+                VALUES (1, :today)
+                ON CONFLICT (id) DO NOTHING
+                RETURNING id
+            """), {"today": today}).scalar_one_or_none()
+
+            reset = False
+            if initialized is None:
+                reset = db.session.execute(text("""
+                    UPDATE attendance_reset_state
+                    SET reset_on = :today
+                    WHERE id = 1 AND reset_on < :today
+                    RETURNING id
+                """), {"today": today}).scalar_one_or_none() is not None
+                if reset:
+                    db.session.execute(
+                        text("UPDATE users SET attendance_status = NULL")
+                    )
+
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            raise
+
+        if reset:
+            _invalidate_query_cache()
+        _attendance_reset_checked_on = today
+        return reset
