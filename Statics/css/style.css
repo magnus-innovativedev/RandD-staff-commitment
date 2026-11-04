@@ -1,7 +1,7 @@
 /* ===================================================
    StaffTrack – Professional Dashboard UI
    Fonts: Sora (headings, labels) + DM Sans (body)
-   Palette: cream surface, deep navy, royal blue accent
+   Palette: vanilla surfaces, midnight indigo, indigo accent
    =================================================== */
 
 /* ---------- Design tokens ---------- */
@@ -9,20 +9,20 @@
   --sidebar-w: 264px;
   --sidebar-collapsed-w: 76px;
 
-  --bg: #fbf6e9;
-  --surface: #fffdf8;
-  --surface-2: #f6efdc;
-  --border: #eadfc6;
-  --border-str: #d8cba5;
-  --shadow: rgba(12, 31, 63, .07);
-  --shadow-lg: rgba(12, 31, 63, .16);
+  --bg: #f8f3e7;
+  --surface: #fffcf4;
+  --surface-2: #f1ebdc;
+  --border: #e4dccb;
+  --border-str: #cdc3ad;
+  --shadow: rgba(26, 23, 61, .07);
+  --shadow-lg: rgba(26, 23, 61, .16);
 
-  --navy: #0c1f3f;
-  --navy-2: #17325f;
-  --navy-soft: #e6e9f2;
-  --accent: #1f46c8;
-  --accent-h: #1a3aa6;
-  --accent-soft: #e2eaff;
+  --navy: #1a173d;
+  --navy-2: #302b63;
+  --navy-soft: #eae8f7;
+  --accent: #5146c8;
+  --accent-h: #4036a8;
+  --accent-soft: #e9e7fb;
 
   --teal: #0e8a74;
   --teal-soft: #d8f0e9;
@@ -31,9 +31,9 @@
   --red: #c8372d;
   --red-soft: #fde2de;
 
-  --text: #0c1f3f;
-  --text-muted: #5d6b85;
-  --text-light: #98a2b6;
+  --text: #1a173d;
+  --text-muted: #68657c;
+  --text-light: #9996a8;
 
   --radius: 10px;
   --radius-lg: 14px;
@@ -199,7 +199,7 @@ button {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 10px rgba(12, 31, 63, .25);
+  box-shadow: 0 4px 10px rgba(26, 23, 61, .25);
 }
 
 .brand-text {
@@ -359,7 +359,7 @@ button {
 }
 
 .nav-item.active {
-  background: #fff;
+  background: var(--surface);
   color: var(--navy);
   border-color: var(--navy);
   box-shadow: 0 2px 8px var(--shadow);
@@ -498,7 +498,7 @@ body.commitment-page-view .main-wrapper {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: rgba(251, 246, 233, .86);
+  background: rgba(248, 243, 231, .86);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
@@ -567,7 +567,7 @@ body.commitment-page-view .main-wrapper {
 }
 
 .topbar-actions .btn {
-  box-shadow: 0 6px 18px rgba(12, 31, 63, .12);
+  box-shadow: 0 6px 18px rgba(26, 23, 61, .12);
 }
 
 .topbar-actions .btn-back {
@@ -1045,7 +1045,7 @@ th.col-center {
 
 .btn-primary:hover {
   background: var(--accent);
-  box-shadow: 0 6px 14px rgba(31, 70, 200, .28);
+  box-shadow: 0 6px 14px rgba(81, 70, 200, .28);
 }
 
 .btn-success {
@@ -1080,7 +1080,7 @@ th.col-center {
 }
 
 .btn-ghost:hover {
-  background: #fff;
+  background: var(--surface);
   border-color: var(--navy);
 }
 
@@ -1146,7 +1146,7 @@ th.col-center {
   font-family: inherit;
   font-size: .88rem;
   color: var(--text);
-  background: #fff;
+  background: var(--surface);
   transition: border-color var(--transition), box-shadow var(--transition);
   outline: none;
   width: 100%;
@@ -1158,7 +1158,7 @@ th.col-center {
 
 .form-control:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(31, 70, 200, .14);
+  box-shadow: 0 0 0 3px rgba(81, 70, 200, .14);
 }
 
 select.form-control {
@@ -1268,7 +1268,7 @@ textarea.form-control {
   border-left: 4px solid var(--accent);
   border-radius: var(--radius-lg);
   margin-bottom: 10px;
-  background: #fff;
+  background: var(--surface);
   box-shadow: 0 2px 8px var(--shadow);
   transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
 }
@@ -1379,7 +1379,7 @@ textarea.form-control {
   height: 16px;
   appearance: none;
   -webkit-appearance: none;
-  border: 2px solid #fff;
+  border: 2px solid var(--surface);
   border-radius: 50%;
   background: var(--accent);
   box-shadow: 0 0 0 1px var(--accent), 0 1px 4px var(--shadow);
@@ -1388,7 +1388,7 @@ textarea.form-control {
 .commitment-progress-slider::-moz-range-thumb {
   width: 12px;
   height: 12px;
-  border: 2px solid #fff;
+  border: 2px solid var(--surface);
   border-radius: 50%;
   background: var(--accent);
   box-shadow: 0 0 0 1px var(--accent), 0 1px 4px var(--shadow);
@@ -1528,7 +1528,7 @@ textarea.form-control {
   height: 100%;
   border-top-right-radius: var(--radius-lg);
   border-bottom-right-radius: var(--radius-lg);
-  background: radial-gradient(circle at top right, rgba(76, 110, 230, .45), transparent 70%);
+  background: radial-gradient(circle at top right, rgba(112, 101, 224, .45), transparent 70%);
   pointer-events: none;
 }
 
@@ -1561,7 +1561,7 @@ textarea.form-control {
 }
 
 .btn-light:hover {
-  background: #fff;
+  background: var(--surface);
   color: var(--navy);
 }
 
@@ -1739,7 +1739,7 @@ textarea.form-control {
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(12, 31, 63, .5);
+  background: rgba(26, 23, 61, .5);
   backdrop-filter: blur(3px);
   display: none;
   align-items: center;
@@ -1809,8 +1809,8 @@ textarea.form-control {
   justify-content: center;
   padding: 20px;
   background:
-    radial-gradient(circle at 15% 20%, rgba(76, 110, 230, .35), transparent 45%),
-    radial-gradient(circle at 85% 85%, rgba(23, 50, 95, .9), transparent 50%),
+    radial-gradient(circle at 15% 20%, rgba(112, 101, 224, .35), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(48, 43, 99, .9), transparent 50%),
     var(--navy);
 }
 
@@ -1833,7 +1833,7 @@ textarea.form-control {
   align-items: center;
   justify-content: center;
   margin: 0 auto 20px;
-  box-shadow: 0 8px 18px rgba(12, 31, 63, .3);
+  box-shadow: 0 8px 18px rgba(26, 23, 61, .3);
 }
 
 .login-box h1 {
@@ -1907,7 +1907,7 @@ textarea.form-control {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(12, 31, 63, .5);
+  background: rgba(26, 23, 61, .5);
   z-index: 99;
 }
 
@@ -2406,10 +2406,10 @@ tbody tr {
   top: calc(100% + 10px);
   right: 0;
   width: 260px;
-  background: #ffffff;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 0 20px 48px rgba(12, 31, 63, 0.22), 0 4px 14px rgba(12, 31, 63, 0.08);
+  box-shadow: 0 20px 48px rgba(26, 23, 61, 0.22), 0 4px 14px rgba(26, 23, 61, 0.08);
   padding: 8px;
   z-index: 9999;
   display: none;
