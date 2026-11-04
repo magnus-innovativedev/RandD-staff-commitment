@@ -341,7 +341,7 @@ def mark_overdue_as_missed():
 
 
 def reset_attendance():
-    """Reset attendance once per app-local day, without clearing today's marks."""
+    """Mark attendance absent once per app-local day."""
     global _attendance_reset_checked_on
     today = date.today()
     with _query_cache_lock:
@@ -372,7 +372,7 @@ def reset_attendance():
                 """), {"today": today}).scalar_one_or_none() is not None
                 if reset:
                     db.session.execute(
-                        text("UPDATE users SET attendance_status = NULL")
+                        text("UPDATE users SET attendance_status = 'absent'")
                     )
 
             db.session.commit()
