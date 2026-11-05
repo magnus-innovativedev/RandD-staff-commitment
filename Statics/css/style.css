@@ -2524,3 +2524,24 @@ tbody tr {
 .attendance-opt-btn.active .attendance-check {
   opacity: 1;
 }
+
+
+/* ---------- Sign-in button loading spinner ---------- */
+.btn-signin {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity .2s, background .2s;
+}
+.btn-signin.is-loading {
+  opacity: .85;
+  pointer-events: none;
+}
+.btn-spinner {
+  animation: spinRotate .7s linear infinite;
+}
+@keyframes spinRotate {
+  to { transform: rotate(360deg); }
+}

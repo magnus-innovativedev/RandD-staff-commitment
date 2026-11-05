@@ -57,9 +57,12 @@
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary w-full" style="padding:12px;margin-top:6px;">
-          <i data-lucide="log-in" class="icon"></i>
-          Sign In
+        <button type="submit" class="btn btn-primary w-full btn-signin" style="padding:12px;margin-top:6px;">
+          <i data-lucide="log-in" class="icon btn-signin-icon"></i>
+          <span class="btn-signin-text">Sign In</span>
+          <svg class="btn-spinner" width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:none;">
+            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="40 60" />
+          </svg>
         </button>
       </form>
 
@@ -70,6 +73,16 @@
   </div>
   <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script>
+    document.querySelector('form').addEventListener('submit', function() {
+      const btn = document.querySelector('.btn-signin');
+      btn.disabled = true;
+      btn.classList.add('is-loading');
+      btn.querySelector('.btn-signin-icon').style.display = 'none';
+      btn.querySelector('.btn-signin-text').textContent = 'Signing in…';
+      btn.querySelector('.btn-spinner').style.display = 'inline-block';
+    });
+  </script>
 </body>
 
 </html>
