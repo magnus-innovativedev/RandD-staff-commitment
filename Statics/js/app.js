@@ -75,7 +75,18 @@ document.addEventListener('DOMContentLoaded', () => {
     'tbody tr'
   ].forEach(sel => {
     document.querySelectorAll(sel).forEach((el, i) => {
-      el.style.setProperty('--i', Math.min(i, 14));
+      el.style.setProperty('--i', Math.min(i, 8));
+    });
+  });
+
+  /* ---------- Clickable rows (instant feedback) ---------- */
+  document.querySelectorAll('tr.clickable-row[data-href]').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('a, button, input, select, textarea')) return;
+      row.classList.add('row-navigating');
+      requestAnimationFrame(() => {
+        window.location.href = row.dataset.href;
+      });
     });
   });
 
@@ -190,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (pct === 0) bar.classList.add('danger');
     });
   };
-  reduceMotion ? animateBars() : setTimeout(animateBars, 250);
+  reduceMotion ? animateBars() : setTimeout(animateBars, 100);
 
   /* ---------- Count-up for stat numbers ---------- */
   document.querySelectorAll('.stat-value, .m-stat-val').forEach(el => {
@@ -198,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!/^\d+$/.test(text) || reduceMotion) return;
     const target = parseInt(text, 10);
     if (target === 0) return;
-    const duration = 900;
+    const duration = 600;
     const start = performance.now();
     el.textContent = '0';
     const tick = (now) => {
@@ -207,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
       el.textContent = Math.round(target * eased);
       if (t < 1) requestAnimationFrame(tick);
     };
-    setTimeout(() => requestAnimationFrame(tick), 250);
+    setTimeout(() => requestAnimationFrame(tick), 80);
   });
 
   /* ---------- Confirm delete ---------- */

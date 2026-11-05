@@ -881,6 +881,27 @@ tbody tr:last-child td {
 
 tr.clickable-row {
   cursor: pointer;
+  transition: background .12s ease;
+}
+
+tr.clickable-row:active {
+  background: var(--accent-soft) !important;
+}
+
+tr.clickable-row.row-navigating {
+  background: var(--accent-soft) !important;
+  opacity: .7;
+  pointer-events: none;
+}
+
+tr.clickable-row.row-navigating .row-chevron {
+  color: var(--accent) !important;
+  animation: chevronBounce .4s ease infinite;
+}
+
+@keyframes chevronBounce {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
 }
 
 tr.clickable-row:hover .person-name {
@@ -2049,14 +2070,14 @@ textarea.form-control {
 .commitment-item,
 .subordinate-card,
 tbody tr {
-  animation: cardEntrance 0.65s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-  animation-delay: calc(var(--i, 0) * 55ms);
+  animation: cardEntrance 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 35ms);
 }
 
 .commitment-item.is-missed {
-  animation: cardEntrance 0.65s cubic-bezier(0.16, 1, 0.3, 1) backwards,
+  animation: cardEntrance 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards,
     missedCommitmentBlink 1.2s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * 55ms), 0ms;
+  animation-delay: calc(var(--i, 0) * 35ms), 0ms;
 }
 
 @keyframes missedCommitmentBlink {
@@ -2092,7 +2113,7 @@ tbody tr {
   pointer-events: none;
   transform: translateX(-150%) skewX(-15deg);
   animation: cardShimmerSweep 1.3s cubic-bezier(0.16, 1, 0.3, 1) 1;
-  animation-delay: calc(var(--i, 0) * 55ms + 180ms);
+  animation-delay: calc(var(--i, 0) * 35ms + 120ms);
   z-index: 5;
 }
 

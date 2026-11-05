@@ -50,8 +50,8 @@
       <div class="stat-label">Late Commitments</div>
     </div>
   </div>
-  <button type="button" class="stat-card zero-commitment-team-toggle"
-    data-zero-commitment-team-filter aria-pressed="false">
+  <button type="button" class="stat-card zero-commitment-team-toggle" data-zero-commitment-team-filter
+    aria-pressed="false">
     <div class="stat-icon red"><i data-lucide="user-round-x" class="icon"></i></div>
     <div>
       <div class="stat-value">{{ zero_commitment_today }}</div>
@@ -91,7 +91,8 @@
       </thead>
       <tbody>
         {% for r in rows %}
-        <tr class="clickable-row" data-zero-commitment-today="{{ 'true' if r.today_commitments == 0 else 'false' }}" onclick="window.location='{{ url_for('user_view', uid=r.id) }}'" title="View {{ r.staff }}'s commitments">
+        <tr class="clickable-row" data-zero-commitment-today="{{ 'true' if r.today_commitments == 0 else 'false' }}"
+          data-href="{{ url_for('user_view', uid=r.id) }}" title="View {{ r.staff }}'s commitments">
           <td>
             <div class="person-card">
               <div class="person-avatar">{{ r.staff[0].upper() }}</div>
@@ -124,7 +125,8 @@
             </div>
           </td>
           <td style="text-align:right; padding-right:16px;">
-            <i data-lucide="chevron-right" class="icon-sm row-chevron" style="color:var(--text-muted); transition:transform 0.2s ease, color 0.2s ease;"></i>
+            <i data-lucide="chevron-right" class="icon-sm row-chevron"
+              style="color:var(--text-muted); transition:transform 0.2s ease, color 0.2s ease;"></i>
           </td>
         </tr>
         {% endfor %}
