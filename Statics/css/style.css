@@ -596,9 +596,9 @@ body.commitment-page-view .page-body {
   min-height: 0;
 }
 
-.commitment-page-layout > .banner,
-.commitment-page-layout > .stats-grid,
-.commitment-page-layout > .profile-back-row {
+.commitment-page-layout>.banner,
+.commitment-page-layout>.stats-grid,
+.commitment-page-layout>.profile-back-row {
   flex-shrink: 0;
 }
 
@@ -609,11 +609,11 @@ body.commitment-page-view .page-body {
   min-height: 0;
 }
 
-.commitment-list-card > .card-header {
+.commitment-list-card>.card-header {
   flex-shrink: 0;
 }
 
-.commitment-list-card > .commitment-list-scroll {
+.commitment-list-card>.commitment-list-scroll {
   flex: 1;
   min-height: 0;
   max-height: none;
@@ -719,7 +719,7 @@ body.commitment-page-view .page-body {
   display: none;
 }
 
-.zero-commitment-manager + .zero-commitment-manager {
+.zero-commitment-manager+.zero-commitment-manager {
   margin-top: 18px;
   padding-top: 16px;
   border-top: 1px solid var(--border);
@@ -735,7 +735,7 @@ body.commitment-page-view .page-body {
   padding-left: 20px;
 }
 
-.zero-commitment-manager li + li {
+.zero-commitment-manager li+li {
   margin-top: 6px;
 }
 
@@ -900,8 +900,15 @@ tr.clickable-row.row-navigating .row-chevron {
 }
 
 @keyframes chevronBounce {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(5px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(5px);
+  }
 }
 
 tr.clickable-row:hover .person-name {
@@ -1984,10 +1991,12 @@ textarea.form-control {
     opacity: 0;
     transform: translateY(20px) scale(0.985);
   }
+
   60% {
     opacity: 0.9;
     transform: translateY(-2px) scale(1.002);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -1999,6 +2008,7 @@ textarea.form-control {
     opacity: 0;
     transform: translateY(14px);
   }
+
   to {
     opacity: 1;
     transform: none;
@@ -2009,6 +2019,7 @@ textarea.form-control {
   0% {
     transform: translateX(-150%) skewX(-15deg);
   }
+
   100% {
     transform: translateX(250%) skewX(-15deg);
   }
@@ -2018,6 +2029,7 @@ textarea.form-control {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -2027,6 +2039,7 @@ textarea.form-control {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -2036,6 +2049,7 @@ textarea.form-control {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -2046,6 +2060,7 @@ textarea.form-control {
     opacity: 0;
     transform: translateY(14px) scale(.97);
   }
+
   to {
     opacity: 1;
     transform: none;
@@ -2057,6 +2072,7 @@ textarea.form-control {
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: none;
@@ -2065,7 +2081,7 @@ textarea.form-control {
 
 /* Base card entrance with spring delay */
 .stat-card,
-.page-body > .card:not(.banner),
+.page-body>.card:not(.banner),
 .manager-block,
 .commitment-item,
 .subordinate-card,
@@ -2081,10 +2097,12 @@ tbody tr {
 }
 
 @keyframes missedCommitmentBlink {
+
   0%,
   100% {
     border-color: var(--border);
   }
+
   50% {
     border-color: var(--red);
   }
@@ -2104,12 +2122,10 @@ tbody tr {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.4) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 100%);
   pointer-events: none;
   transform: translateX(-150%) skewX(-15deg);
   animation: cardShimmerSweep 1.3s cubic-bezier(0.16, 1, 0.3, 1) 1;
@@ -2144,12 +2160,10 @@ tbody tr {
 
 /* Reusable Skeleton Loader Styles */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--surface-2) 25%,
-    rgba(255, 255, 255, 0.75) 50%,
-    var(--surface-2) 75%
-  );
+  background: linear-gradient(90deg,
+      var(--surface-2) 25%,
+      rgba(255, 255, 255, 0.75) 50%,
+      var(--surface-2) 75%);
   background-size: 200% 100%;
   animation: skeletonPulse 1.6s infinite ease-in-out;
   border-radius: 8px;
@@ -2446,6 +2460,7 @@ tbody tr {
     opacity: 0;
     transform: translateY(-6px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -2556,13 +2571,196 @@ tbody tr {
   gap: 8px;
   transition: opacity .2s, background .2s;
 }
+
 .btn-signin.is-loading {
   opacity: .85;
   pointer-events: none;
 }
+
 .btn-spinner {
   animation: spinRotate .7s linear infinite;
 }
+
 @keyframes spinRotate {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* ---------- Commitment Delay Reason Box & Alert ---------- */
+.commitment-reason-box {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #fffbf0;
+  border: 1px solid #fed7aa;
+  border-left: 3px solid var(--amber);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.commitment-reason-box.empty {
+  background: var(--surface-2);
+  border: 1px dashed var(--border);
+  border-left: 3px solid var(--border-str);
+}
+
+.commitment-reason-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.reason-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: #b45309;
+}
+
+.reason-label svg,
+.reason-label i {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.2;
+}
+
+.btn-reason-edit {
+  font-size: .72rem !important;
+  padding: 2px 8px !important;
+  height: auto !important;
+  color: #b45309 !important;
+  border-radius: var(--radius-sm);
+}
+
+.btn-reason-edit:hover {
+  background: #fde68a !important;
+  color: #78350f !important;
+}
+
+.commitment-reason-text {
+  font-size: .86rem;
+  color: #451a03;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.commitment-reason-alert {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #fff7ed;
+  border: 1px dashed #fdba74;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.commitment-reason-alert.empty-state-alert {
+  background: var(--surface-2);
+  border: 1px dashed var(--border);
+}
+
+.reason-alert-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .8rem;
+  font-weight: 600;
+  color: #c2410c;
+}
+
+.reason-alert-msg svg,
+.reason-alert-msg i {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  stroke-width: 2.2;
+}
+
+.btn-reason-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--amber);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  font-size: .75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s ease, transform .1s ease;
+}
+
+.btn-reason-add:hover {
+  background: #b45309;
+  transform: translateY(-1px);
+}
+
+.btn-reason-add:active {
+  transform: translateY(0);
+}
+
+.btn-warning-soft {
+  background: var(--amber-soft);
+  color: #b45309;
+  border: 1px solid #fed7aa;
+}
+
+.btn-warning-soft:hover {
+  background: #fed7aa;
+  color: #78350f;
+}
+
+.btn-xs {
+  padding: 3px 7px;
+  font-size: .7rem;
+}
+
+
+/* ---------- Days Left & Overdue Badges ---------- */
+.badge-days-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  font-size: .72rem;
+}
+
+.badge-days-left svg,
+.badge-days-left i {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.2;
+}
+
+.badge-overdue-alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #f87171 !important;
+  font-weight: 700 !important;
+  font-size: .72rem;
+  letter-spacing: .2px;
+}
+
+.badge-overdue-alert svg,
+.badge-overdue-alert i {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.4;
+  color: #dc2626;
 }

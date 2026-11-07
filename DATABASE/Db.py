@@ -15,10 +15,22 @@ _query_cache_lock = RLock()
 _query_cache_generation = 0
 _overdue_status_checked_on = None
 _attendance_reset_checked_on = None
+_schema_updated = False
 
 
 def init_db(app):
     db.init_app(app)
+
+
+def _ensure_schema():
+    global _schema_updated
+    if not _schema_updated:
+        try:
+            db.session.execute(text("ALTER TABLE commitments ADD COLUMN IF NOT EXISTS reason TEXT;"))
+            db.session.commit()
+            _schema_updated = True
+        except Exception:
+            db.session.rollback()
 
 
 # models import db from this file, so they are imported inside functions
@@ -62,6 +74,7 @@ def _cached_query(key, load):
 
 def _ensure_overdue_status_current():
     global _overdue_status_checked_on
+    _ensure_schema()
     today = date.today()
     with _query_cache_lock:
         if _overdue_status_checked_on != today:
@@ -193,7 +206,7 @@ def get_user_commitments(user_id):
         commitments = (Commitment.query.filter_by(owner_id=user_id)
                        .order_by(Commitment.end_date).all())
         fields = (
-            "id", "owner_id", "commitment_text", "description", "start_date",
+            "id", "owner_id", "commitment_text", "description", "reason", "start_date",
             "end_date", "duration_days", "completion_pct", "priority", "status",
             "created_at", "completed_at",
         )
@@ -201,6 +214,26 @@ def get_user_commitments(user_id):
                 for commitment in commitments]
 
     return _cached_query(("user_commitments", user_id, date.today()), load)
+
+
+def update_commitment_reason(commitment_id, user_id, reason_text):
+    """Updates the reason for delay when a commitment's end date has passed."""
+    User, Commitment = _models()
+    _ensure_schema()
+    c = db.session.get(Commitment, commitment_id)
+    if c is None:
+        return None
+    user = db.session.get(User, user_id)
+    if not user:
+        return None
+    # Allowed if user is owner, CMO/developer, or manager of owner
+    if c.owner_id != user.id and user.role not in ("cmo", "developer"):
+        owner = db.session.get(User, c.owner_id)
+        if not owner or owner.manager_id != user.id:
+            return None
+    c.reason = reason_text.strip() if reason_text and reason_text.strip() else None
+    _commit()
+    return c
 
 
 def update_progress(commitment_id, user_id, pct):

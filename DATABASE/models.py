@@ -31,6 +31,7 @@ class Commitment(db.Model):
     owner_id        = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     commitment_text = db.Column(db.Text, nullable=False)
     description     = db.Column(db.Text)
+    reason          = db.Column(db.Text)  # reason for delay when end_date is over
     start_date      = db.Column(db.Date, nullable=False)
     end_date        = db.Column(db.Date, nullable=False)
     # calculated by PostgreSQL, never set it from Python

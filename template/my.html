@@ -165,9 +165,58 @@
               {{ c.duration_days }}d
             </span>
             {% endif %}
+
+            {% if c.status != 'completed' %}
+              {% set days_diff = (c.end_date - today).days %}
+              {% if days_diff > 1 %}
+                <span class="badge badge-blue badge-days-left">
+                  <i data-lucide="clock"></i> {{ days_diff }} days left
+                </span>
+              {% elif days_diff == 1 %}
+                <span class="badge badge-amber badge-days-left">
+                  <i data-lucide="clock"></i> 1 day left
+                </span>
+              {% elif days_diff == 0 %}
+                <span class="badge badge-amber badge-days-left">
+                  <i data-lucide="alert-circle"></i> Due today
+                </span>
+              {% else %}
+                {% set overdue_days = (today - c.end_date).days %}
+                <span class="badge badge-red badge-overdue-alert">
+                  <i data-lucide="alert-triangle"></i> {{ overdue_days }} {% if overdue_days == 1 %}day{% else %}days{% endif %} overdue
+                </span>
+              {% endif %}
+            {% endif %}
           </div>
           {% if c.description %}
           <div class="text-muted mt-2">{{ c.description }}</div>
+          {% endif %}
+
+          {% if c.end_date < today %}
+          {% if c.reason %}
+          <div class="commitment-reason-box">
+            <div class="commitment-reason-head">
+              <span class="reason-label"><i data-lucide="help-circle"></i> Reason for Delay:</span>
+              <button type="button" class="btn btn-ghost btn-xs btn-reason-edit"
+                onclick="openReasonModal({{ c.id }}, {{ c.commitment_text | tojson }}, {{ c.reason | tojson }})">
+                <i data-lucide="edit-3"></i> Edit
+              </button>
+            </div>
+            <div class="commitment-reason-text">{{ c.reason }}</div>
+          </div>
+          {% else %}
+          <div class="commitment-reason-alert">
+            <div class="reason-alert-msg">
+              <i data-lucide="alert-triangle"></i>
+              {% set overdue_days = (today - c.end_date).days %}
+              <span>End date was {{ c.end_date.strftime('%d %b %Y') }} ({{ overdue_days }} {% if overdue_days == 1 %}day{% else %}days{% endif %} overdue). Please provide a reason.</span>
+            </div>
+            <button type="button" class="btn btn-reason-add"
+              onclick="openReasonModal({{ c.id }}, {{ c.commitment_text | tojson }}, '')">
+              <i data-lucide="plus"></i> Add Reason
+            </button>
+          </div>
+          {% endif %}
           {% endif %}
         </div>
       </div>
@@ -186,6 +235,19 @@
         </div>
 
         <div class="commitment-controls">
+          {% if c.end_date < today and c.reason %}
+          <button type="button" class="btn btn-ghost btn-sm"
+            onclick="openReasonModal({{ c.id }}, {{ c.commitment_text | tojson }}, {{ c.reason | tojson }})"
+            title="Edit reason">
+            <i data-lucide="message-square"></i> Edit Reason
+          </button>
+          {% elif c.end_date < today %}
+          <button type="button" class="btn btn-warning-soft btn-sm"
+            onclick="openReasonModal({{ c.id }}, {{ c.commitment_text | tojson }}, '')"
+            title="Add reason for delay">
+            <i data-lucide="message-square-plus"></i> Add Reason
+          </button>
+          {% endif %}
           {% if c.status != 'completed' %}
           <form method="POST" action="{{ url_for('update_progress', cid=c.id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -266,7 +328,53 @@
   </div>
 </div>
 
+<!-- REASON MODAL -->
+<div id="reasonModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <i data-lucide="message-square" class="icon" style="color:var(--amber);"></i>
+      <h3 id="reasonModalTitle">Add Reason</h3>
+      <button type="button" onclick="closeModal('reasonModal')" class="btn btn-ghost btn-icon" aria-label="Close">
+        <i data-lucide="x" class="icon"></i>
+      </button>
+    </div>
+    <form method="POST" id="reasonModalForm" action="" class="modal-body">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-group mb-3">
+        <label style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); font-weight:700;">Commitment</label>
+        <div id="reasonModalCommitmentText" style="font-weight:600; font-size:0.92rem; color:var(--navy); padding:8px 12px; background:var(--surface-2); border-radius:var(--radius-sm);"></div>
+      </div>
+      <div class="form-group mb-4">
+        <label for="commitmentReasonInput">Reason for delay / missed deadline *</label>
+        <textarea id="commitmentReasonInput" name="reason" class="form-control" rows="3" placeholder="Explain why the deadline was missed or delayed..." required></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('reasonModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">
+          <i data-lucide="check" class="icon"></i> Save Reason
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
+  function openReasonModal(cid, text, currentReason) {
+    const form = document.getElementById('reasonModalForm');
+    const titleEl = document.getElementById('reasonModalTitle');
+    const textEl = document.getElementById('reasonModalCommitmentText');
+    const inputEl = document.getElementById('commitmentReasonInput');
+    if (form) form.action = '/commitments/' + cid + '/reason';
+    if (titleEl) titleEl.textContent = currentReason ? 'Edit Reason' : 'Add Reason for Delay';
+    if (textEl) textEl.textContent = text;
+    if (inputEl) {
+      inputEl.value = currentReason || '';
+      setTimeout(() => inputEl.focus(), 120);
+    }
+    openModal('reasonModal');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
   function toggleAttendanceDropdown(e) {
     if (e) e.stopPropagation();
     const wrap = document.getElementById('attendanceDropdownWrap');

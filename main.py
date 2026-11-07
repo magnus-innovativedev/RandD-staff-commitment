@@ -186,6 +186,20 @@ def update_progress(cid):
     return redirect(url_for("my"))
 
 
+@app.route("/commitments/<int:cid>/reason", methods=["POST"])
+@login_required()
+def update_commitment_reason(cid):
+    reason = request.form.get("reason", "").strip()
+    updated = Db.update_commitment_reason(cid, g.user.id, reason)
+    if updated is None:
+        abort(404)
+    if reason:
+        flash("Reason saved successfully.", "success")
+    else:
+        flash("Reason cleared.", "success")
+    return redirect(request.referrer or url_for("my"))
+
+
 @app.route("/commitments/<int:cid>/delete", methods=["POST"])
 @login_required(roles=["staff", "manager"])
 def delete_commitment(cid):
