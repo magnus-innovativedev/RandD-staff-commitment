@@ -186,13 +186,29 @@
                   <i data-lucide="alert-triangle"></i> {{ overdue_days }} {% if overdue_days == 1 %}day{% else %}days{% endif %} overdue
                 </span>
               {% endif %}
+            {% else %}
+              {% if c.time_taken_str %}
+                <span class="badge badge-green badge-completed-time">
+                  <i data-lucide="check-check"></i> Completed in {{ c.time_taken_str }}
+                </span>
+              {% endif %}
             {% endif %}
           </div>
           {% if c.description %}
           <div class="text-muted mt-2">{{ c.description }}</div>
           {% endif %}
 
-          {% if c.end_date < today %}
+          {% if c.status == 'completed' and c.time_taken_str %}
+          <div class="commitment-completion-box">
+            <i data-lucide="check-circle-2" class="completion-icon"></i>
+            <div class="completion-content">
+              <span class="completion-title">Completed in <strong>{{ c.time_taken_str }}</strong></span>
+              <span class="completion-dates text-muted">(From {{ c.start_date.strftime('%d %b %Y') }} to {{ c.completed_date_str }})</span>
+            </div>
+          </div>
+          {% endif %}
+
+          {% if c.end_date < today and c.status != 'completed' %}
           {% if c.reason %}
           <div class="commitment-reason-box">
             <div class="commitment-reason-head">

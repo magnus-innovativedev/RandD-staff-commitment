@@ -2802,3 +2802,59 @@ tbody tr {
 .btn-ghost-danger .icon {
   stroke: currentColor !important;
 }
+
+
+/* ---------- Commitment Completion Time Box & Badge ---------- */
+.commitment-completion-box {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-left: 3px solid var(--teal);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.commitment-completion-box .completion-icon {
+  width: 17px;
+  height: 17px;
+  color: var(--teal);
+  stroke-width: 2.2;
+  flex-shrink: 0;
+}
+
+.commitment-completion-box .completion-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: .83rem;
+  color: #14532d;
+}
+
+.commitment-completion-box .completion-title strong {
+  color: #0f766e;
+  font-weight: 700;
+}
+
+.commitment-completion-box .completion-dates {
+  font-size: .78rem;
+  color: #15803d !important;
+}
+
+.badge-completed-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  font-size: .72rem;
+}
+
+.badge-completed-time svg,
+.badge-completed-time i {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.4;
+}

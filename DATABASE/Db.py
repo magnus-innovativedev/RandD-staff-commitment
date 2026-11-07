@@ -27,6 +27,7 @@ def _ensure_schema():
     if not _schema_updated:
         try:
             db.session.execute(text("ALTER TABLE commitments ADD COLUMN IF NOT EXISTS reason TEXT;"))
+            db.session.execute(text("ALTER TABLE commitments ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP;"))
             db.session.commit()
             _schema_updated = True
         except Exception:
@@ -210,8 +211,42 @@ def get_user_commitments(user_id):
             "end_date", "duration_days", "completion_pct", "priority", "status",
             "created_at", "completed_at",
         )
-        return [{field: getattr(commitment, field) for field in fields}
-                for commitment in commitments]
+        rows = []
+        for commitment in commitments:
+            row = {field: getattr(commitment, field) for field in fields}
+            if row.get("status") == "completed":
+                comp_dt = row.get("completed_at")
+                if comp_dt:
+                    comp_date = comp_dt.date() if hasattr(comp_dt, "date") else comp_dt
+                    row["completed_date_str"] = comp_date.strftime("%d %b %Y")
+                elif row.get("end_date"):
+                    comp_date = row["end_date"]
+                    row["completed_date_str"] = comp_date.strftime("%d %b %Y")
+                else:
+                    comp_date = None
+                    row["completed_date_str"] = "N/A"
+
+                start = row.get("start_date")
+                if comp_date and start:
+                    diff = (comp_date - start).days
+                    if diff <= 0:
+                        row["time_taken_str"] = "Same day"
+                        row["days_taken"] = 0
+                    elif diff == 1:
+                        row["time_taken_str"] = "1 day"
+                        row["days_taken"] = 1
+                    else:
+                        row["time_taken_str"] = f"{diff} days"
+                        row["days_taken"] = diff
+                else:
+                    row["time_taken_str"] = None
+                    row["days_taken"] = None
+            else:
+                row["time_taken_str"] = None
+                row["days_taken"] = None
+                row["completed_date_str"] = None
+            rows.append(row)
+        return rows
 
     return _cached_query(("user_commitments", user_id, date.today()), load)
 
