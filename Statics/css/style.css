@@ -2764,3 +2764,41 @@ tbody tr {
   stroke-width: 2.4;
   color: #dc2626;
 }
+
+
+/* ---------- Ghost Danger Button ---------- */
+.btn-ghost-danger {
+  color: var(--red);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.btn-ghost-danger:hover {
+  background: var(--red-soft);
+  color: #a02820;
+  border-color: #f2bdb6;
+}
+
+.btn-ghost-danger .icon {
+  stroke: currentColor !important;
+}
+
+
+/* ---------- Ghost Danger Button ---------- */
+.btn-ghost-danger {
+  color: var(--red);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.btn-ghost-danger:hover {
+  background: var(--red-soft);
+  color: #a02820;
+  border-color: #f2bdb6;
+}
+
+.btn-ghost-danger .icon {
+  stroke: currentColor !important;
+}

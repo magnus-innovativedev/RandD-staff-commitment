@@ -174,15 +174,21 @@
           </div>
           <span class="progress-pct">{{ c.completion_pct }}%</span>
         </div>
-        <span class="meta-chip">
-          <i data-lucide="clock"></i>
-          Due {{ c.end_date.strftime('%d %b %Y') }}
-          {% if c.end_date < today and c.status not in ('completed','missed') %} <span class="badge badge-red"
-            style="margin-left:4px;">
-            <i data-lucide="alert-circle"></i>Overdue
-        </span>
-        {% endif %}
-        </span>
+        <div class="commitment-controls">
+          <span class="meta-chip">
+            <i data-lucide="clock"></i>
+            Due {{ c.end_date.strftime('%d %b %Y') }}
+          </span>
+          {% if g.user.role in ('cmo', 'manager', 'developer') %}
+          <form method="POST" action="{{ url_for('delete_commitment', cid=c.id) }}"
+            data-confirm="Are you sure you want to delete this commitment: &quot;{{ c.commitment_text }}&quot;?">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-ghost-danger btn-sm" type="submit" title="Delete commitment">
+              <i data-lucide="trash-2" class="icon"></i> Delete
+            </button>
+          </form>
+          {% endif %}
+        </div>
       </div>
     </div>
     {% endfor %}

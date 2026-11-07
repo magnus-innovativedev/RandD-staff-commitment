@@ -201,12 +201,13 @@ def update_commitment_reason(cid):
 
 
 @app.route("/commitments/<int:cid>/delete", methods=["POST"])
-@login_required(roles=["staff", "manager"])
+@login_required(roles=["manager", "cmo", "developer"])
 def delete_commitment(cid):
     if not Db.delete_commitment(cid, g.user.id):
-        abort(404)
+        flash("You do not have permission to delete this commitment.", "error")
+        return redirect(request.referrer or url_for("my"))
     flash("Commitment deleted.", "success")
-    return redirect(url_for("my"))
+    return redirect(request.referrer or url_for("my"))
 
 
 @app.route("/attendance", methods=["POST"])

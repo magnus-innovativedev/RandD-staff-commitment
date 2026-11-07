@@ -257,10 +257,19 @@ def update_progress(commitment_id, user_id, pct):
 
 
 def delete_commitment(commitment_id, user_id):
-    _, Commitment = _models()
+    """Only CMO, Manager, or Developer can delete commitments.
+    Managers can only delete their own or their subordinates' commitments."""
+    User, Commitment = _models()
     c = db.session.get(Commitment, commitment_id)
-    if c is None or c.owner_id != user_id:
+    if c is None:
         return False
+    user = db.session.get(User, user_id) if isinstance(user_id, int) else user_id
+    if not user or user.role not in ("cmo", "manager", "developer"):
+        return False
+    if user.role == "manager" and c.owner_id != user.id:
+        owner = db.session.get(User, c.owner_id)
+        if not owner or owner.manager_id != user.id:
+            return False
     db.session.delete(c)
     _commit()
     return True

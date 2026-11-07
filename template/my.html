@@ -257,6 +257,15 @@
             </button>
           </form>
           {% endif %}
+          {% if g.user.role in ('cmo', 'manager', 'developer') %}
+          <form method="POST" action="{{ url_for('delete_commitment', cid=c.id) }}"
+            data-confirm="Are you sure you want to delete this commitment: &quot;{{ c.commitment_text }}&quot;?">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-ghost-danger btn-sm" type="submit" title="Delete commitment">
+              <i data-lucide="trash-2" class="icon"></i>
+            </button>
+          </form>
+          {% endif %}
 
         </div>
       </div>
