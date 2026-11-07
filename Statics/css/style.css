@@ -37,8 +37,8 @@
 
   --radius: 10px;
   --radius-lg: 14px;
-  --ease: cubic-bezier(.22, .8, .3, 1);
-  --transition: .22s var(--ease);
+  --ease: ease;
+  --transition: .14s ease;
 
   --font-head: 'Sora', system-ui, sans-serif;
   --font-body: 'DM Sans', system-ui, sans-serif;
@@ -355,7 +355,7 @@ button {
 }
 
 .nav-item:hover .nav-icon {
-  transform: translateX(1px) scale(1.08);
+  color: var(--accent);
 }
 
 .nav-item.active {
@@ -756,19 +756,17 @@ body.commitment-page-view .page-body {
   bottom: 0;
   width: 3px;
   background: var(--accent);
-  transform: scaleY(.35);
-  transform-origin: center;
-  transition: transform var(--transition);
+  opacity: .5;
+  transition: opacity var(--transition);
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 22px var(--shadow);
   border-color: var(--border-str);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .stat-card:hover::before {
-  transform: scaleY(1);
+  opacity: 1;
 }
 
 .stat-icon {
@@ -922,7 +920,6 @@ tr.clickable-row:hover .person-name {
 
 tr.clickable-row:hover .row-chevron {
   color: var(--accent) !important;
-  transform: translateX(4px);
 }
 
 .col-center {
@@ -1063,12 +1060,7 @@ th.col-center {
   cursor: pointer;
   border: 1.5px solid transparent;
   transition: background var(--transition), color var(--transition),
-    border-color var(--transition), box-shadow var(--transition),
-    transform .12s;
-}
-
-.btn:active {
-  transform: scale(.97);
+    border-color var(--transition), box-shadow var(--transition);
 }
 
 .btn-primary {
@@ -1078,7 +1070,7 @@ th.col-center {
 
 .btn-primary:hover {
   background: var(--accent);
-  box-shadow: 0 6px 14px rgba(81, 70, 200, .28);
+  box-shadow: 0 4px 10px rgba(81, 70, 200, .2);
 }
 
 .btn-success {
@@ -1134,18 +1126,6 @@ th.col-center {
 
 .btn-primary .icon {
   stroke: #fff;
-}
-
-.btn-ghost .icon-arrow {
-  transition: transform var(--transition);
-}
-
-.btn:hover .icon-arrow-right {
-  transform: translateX(3px);
-}
-
-.btn:hover .icon-arrow-left {
-  transform: translateX(-3px);
 }
 
 /* ===================================================
@@ -1303,7 +1283,7 @@ textarea.form-control {
   margin-bottom: 10px;
   background: var(--surface);
   box-shadow: 0 2px 8px var(--shadow);
-  transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
+  transition: box-shadow var(--transition), border-color var(--transition);
 }
 
 .commitment-item:last-child {
@@ -1311,8 +1291,8 @@ textarea.form-control {
 }
 
 .commitment-item:hover {
-  box-shadow: 0 8px 20px var(--shadow-lg);
-  transform: translateY(-1px);
+  border-color: var(--border-str);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .commitment-item.is-missed {
@@ -1761,7 +1741,6 @@ textarea.form-control {
 }
 
 .manager-header:hover .m-chevron {
-  transform: translateX(3px);
   color: var(--accent);
 }
 
@@ -2298,13 +2277,12 @@ tbody tr {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  transition: box-shadow var(--transition), border-color var(--transition);
 }
 
 .subordinate-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px var(--shadow);
-  border-color: var(--navy);
+  border-color: var(--border-str);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .subordinate-card-header {
@@ -2394,12 +2372,6 @@ tbody tr {
 .attendance-pill-btn:hover {
   background: rgba(255, 255, 255, 0.22);
   border-color: rgba(255, 255, 255, 0.45);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
-}
-
-.attendance-pill-btn:active {
-  transform: translateY(0);
 }
 
 .attendance-pill-btn .status-dot {
@@ -2705,16 +2677,11 @@ tbody tr {
   font-size: .75rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background .15s ease, transform .1s ease;
+  transition: background .14s ease;
 }
 
 .btn-reason-add:hover {
   background: #b45309;
-  transform: translateY(-1px);
-}
-
-.btn-reason-add:active {
-  transform: translateY(0);
 }
 
 .btn-warning-soft {
