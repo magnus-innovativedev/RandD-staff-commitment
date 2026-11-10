@@ -2,7 +2,7 @@
 
 {% block title %}CMO Overview{% endblock %}
 {% block page_title %}Organisation Overview{% endblock %}
-{% block breadcrumb %}<span class="breadcrumb">All managers and their teams at a glance</span>{% endblock %}
+{% block breadcrumb %}<span class="breadcrumb">All managers and their commitments &amp; teams at a glance</span>{% endblock %}
 
 {% block topbar_actions %}
 <a href="{{ url_for('add_user') }}" class="btn btn-primary btn-sm">
@@ -21,6 +21,7 @@
 {% set total_present = rows | sum(attribute='present') %}
 {% set total_wfh = rows | sum(attribute='wfh') %}
 {% set total_absent = rows | sum(attribute='absent') %}
+{% set total_manager_commits = rows | map(attribute='manager_commitments') | map('length') | sum %}
 
 <div class="stats-grid">
   <div class="stat-card">
@@ -28,6 +29,13 @@
     <div>
       <div class="stat-value">{{ total_teams }}</div>
       <div class="stat-label">Managers</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon purple"><i data-lucide="clipboard-check" class="icon"></i></div>
+    <div>
+      <div class="stat-value">{{ total_manager_commits }}</div>
+      <div class="stat-label">Manager Commitments</div>
     </div>
   </div>
   <div class="stat-card">
@@ -41,21 +49,21 @@
     <div class="stat-icon green"><i data-lucide="user-check" class="icon"></i></div>
     <div>
       <div class="stat-value">{{ total_present }}</div>
-      <div class="stat-label">Present Today</div>
+      <div class="stat-label">Staff Present</div>
     </div>
   </div>
   <div class="stat-card">
     <div class="stat-icon amber"><i data-lucide="home" class="icon"></i></div>
     <div>
       <div class="stat-value">{{ total_wfh }}</div>
-      <div class="stat-label">WFH Today</div>
+      <div class="stat-label">Staff WFH</div>
     </div>
   </div>
   <div class="stat-card">
     <div class="stat-icon red"><i data-lucide="user-x" class="icon"></i></div>
     <div>
       <div class="stat-value">{{ total_absent }}</div>
-      <div class="stat-label">Absent Today</div>
+      <div class="stat-label">Staff Absent</div>
     </div>
   </div>
   <button type="button" class="stat-card zero-commitment-toggle" id="zeroCommitmentToggle"
@@ -94,55 +102,201 @@
   </div>
 </div>
 
-<h2 class="section-label">Managers &amp; Teams</h2>
+<h2 class="section-label">Managers &amp; Their Commitments</h2>
 
 {% if rows %}
 {% for r in rows %}
 <div class="manager-block">
 
-  <a href="{{ url_for('team', manager_id=r.id) }}" class="manager-header" id="mhdr-{{ r.id }}"
-    aria-label="View {{ r.manager }}'s team">
-    <div class="m-avatar">{{ r.manager[0].upper() }}</div>
-    <div class="m-info">
-      <div class="m-name">{{ r.manager }}</div>
-      <div class="m-sub">Manager &middot; {{ r.team_size }} staff member{{ 's' if r.team_size != 1 }}</div>
-      <div class="m-today-mobile">
-        Zero commitments today: {{ r.no_commitment_today }}
+  <!-- Manager Header Info & Quick Actions -->
+  <div class="manager-header">
+    <div class="manager-profile">
+      <div class="m-avatar">{{ r.manager[0].upper() }}</div>
+      <div class="m-info">
+        <div class="m-name-row">
+          <span class="m-name">{{ r.manager }}</span>
+          {% if r.manager_attendance == 'present' %}
+            <span class="badge att-present"><i data-lucide="check-circle-2"></i> Present today</span>
+          {% elif r.manager_attendance == 'wfh' %}
+            <span class="badge att-wfh"><i data-lucide="home"></i> WFH today</span>
+          {% elif r.manager_attendance == 'absent' %}
+            <span class="badge att-absent"><i data-lucide="x-circle"></i> Absent today</span>
+          {% else %}
+            <span class="badge att-none"><i data-lucide="minus-circle"></i> Attendance not marked</span>
+          {% endif %}
+        </div>
+        <div class="m-sub">Manager &middot; Supervising {{ r.team_size }} staff member{{ 's' if r.team_size != 1 }}</div>
       </div>
     </div>
 
-    <div class="m-stats">
-      <div class="m-stat">
-        <span class="m-stat-val">{{ r.total }}</span>
-        <span class="m-stat-lbl">Tasks</span>
+    <div class="manager-actions">
+      <a href="{{ url_for('user_view', uid=r.id) }}" class="btn btn-primary btn-sm" title="View &amp; manage {{ r.manager }}'s commitments">
+        <i data-lucide="clipboard-list" class="icon"></i> Manager Commitments ({{ r.manager_commitments | length }})
+      </a>
+      <a href="{{ url_for('team', manager_id=r.id) }}" class="btn btn-ghost btn-sm" title="View {{ r.manager }}'s team">
+        <i data-lucide="users" class="icon"></i> View Staff Team ({{ r.team_size }})
+      </a>
+    </div>
+  </div>
+
+  <!-- Manager Personal Commitments Section -->
+  <div class="manager-commitments-section">
+    <div class="manager-commitments-header">
+      <div class="section-subtitle">
+        <i data-lucide="clipboard-check" class="icon-sm"></i>
+        <span>{{ r.manager }}'s Commitments</span>
       </div>
-      <div class="m-stat">
-        <span class="m-stat-val" style="color:var(--teal);">{{ r.completed }}</span>
-        <span class="m-stat-lbl">Done</span>
+      <div class="manager-commitments-counts">
+        <span class="badge badge-gray">{{ r.manager_commitments | length }} total</span>
+        {% set mgr_done = r.manager_commitments | selectattr('status', 'equalto', 'completed') | list | length %}
+        {% set mgr_missed = r.manager_commitments | selectattr('status', 'equalto', 'missed') | list | length %}
+        {% if mgr_done > 0 %}
+          <span class="badge badge-green">{{ mgr_done }} completed</span>
+        {% endif %}
+        {% if mgr_missed > 0 %}
+          <span class="badge badge-red">{{ mgr_missed }} missed</span>
+        {% endif %}
       </div>
-      <div class="m-stat">
-        <span class="m-stat-val" style="color:var(--red);">{{ r.missed }}</span>
-        <span class="m-stat-lbl">Missed</span>
+    </div>
+
+    {% if r.manager_commitments %}
+    <div class="manager-commitments-list">
+      {% for c in r.manager_commitments %}
+      <div class="commitment-item{% if c.status == 'missed' %} is-missed{% elif c.status == 'completed' %} is-completed{% endif %}">
+        <div class="commitment-top">
+          <div style="flex:1;">
+            <div class="commitment-title">{{ c.commitment_text }}</div>
+            <div class="commitment-meta">
+              <span class="priority-dot priority-{{ c.priority }}"></span>
+              <span class="badge badge-{% if c.priority=='high' %}red{% elif c.priority=='medium' %}amber{% else %}green{% endif %}">
+                {{ c.priority | title }}
+              </span>
+              <span class="badge {% if c.status=='completed' %}badge-green{% elif c.status=='in_progress' %}badge-blue{% elif c.status=='missed' %}badge-red{% else %}badge-gray{% endif %}">
+                {{ c.status | replace('_',' ') | title }}
+              </span>
+              <span class="meta-chip">
+                <i data-lucide="calendar"></i>
+                {{ c.start_date.strftime('%d %b') }} – {{ c.end_date.strftime('%d %b %Y') }}
+              </span>
+              {% if c.duration_days %}
+              <span class="meta-chip">
+                <i data-lucide="clock"></i>
+                {{ c.duration_days }}d
+              </span>
+              {% endif %}
+
+              {# DAYS LEFT OR OVERDUE #}
+              {% if c.status != 'completed' %}
+                {% set days_diff = (c.end_date - today).days %}
+                {% if days_diff > 1 %}
+                  <span class="badge badge-blue badge-days-left">
+                    <i data-lucide="clock"></i> {{ days_diff }} days left
+                  </span>
+                {% elif days_diff == 1 %}
+                  <span class="badge badge-amber badge-days-left">
+                    <i data-lucide="clock"></i> 1 day left
+                  </span>
+                {% elif days_diff == 0 %}
+                  <span class="badge badge-amber badge-days-left">
+                    <i data-lucide="alert-circle"></i> Due today
+                  </span>
+                {% else %}
+                  {% set overdue_days = (today - c.end_date).days %}
+                  <span class="badge badge-red badge-overdue-alert">
+                    <i data-lucide="alert-triangle"></i> {{ overdue_days }} {% if overdue_days == 1 %}day{% else %}days{% endif %} overdue
+                  </span>
+                {% endif %}
+              {% else %}
+                {% if c.time_taken_str %}
+                  <span class="badge badge-green badge-completed-time">
+                    <i data-lucide="check-check"></i> Completed in {{ c.time_taken_str }}
+                  </span>
+                {% endif %}
+              {% endif %}
+            </div>
+
+            {% if c.description %}
+            <div class="text-muted mt-2" style="font-size:0.84rem;">{{ c.description }}</div>
+            {% endif %}
+
+            {# TIME TAKEN BOX #}
+            {% if c.status == 'completed' and c.time_taken_str %}
+            <div class="commitment-completion-box">
+              <i data-lucide="check-circle-2" class="completion-icon"></i>
+              <div class="completion-content">
+                <span class="completion-title">Completed in <strong>{{ c.time_taken_str }}</strong></span>
+                <span class="completion-dates text-muted">(From {{ c.start_date.strftime('%d %b %Y') }} to {{ c.completed_date_str }})</span>
+              </div>
+            </div>
+            {% endif %}
+
+            {# DELAY REASON BOX #}
+            {% if c.end_date < today and c.status != 'completed' %}
+              {% if c.reason %}
+              <div class="commitment-reason-box">
+                <div class="commitment-reason-head">
+                  <span class="reason-label"><i data-lucide="help-circle"></i> Reason for Delay:</span>
+                </div>
+                <div class="commitment-reason-text">{{ c.reason }}</div>
+              </div>
+              {% else %}
+              <div class="commitment-reason-alert empty-state-alert">
+                <div class="reason-alert-msg text-muted">
+                  <i data-lucide="alert-circle"></i>
+                  {% set overdue_days = (today - c.end_date).days %}
+                  <span>End date was {{ c.end_date.strftime('%d %b %Y') }} ({{ overdue_days }} {% if overdue_days == 1 %}day{% else %}days{% endif %} overdue) &middot; No reason submitted yet.</span>
+                </div>
+              </div>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="commitment-footer">
+          <div class="progress-wrap" style="flex:1;min-width:140px;">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" data-pct="{{ c.completion_pct }}" style="width:0%"></div>
+            </div>
+            <span class="progress-pct">{{ c.completion_pct }}%</span>
+          </div>
+          <span class="meta-chip">
+            <i data-lucide="clock"></i>
+            Due {{ c.end_date.strftime('%d %b %Y') }}
+          </span>
+        </div>
       </div>
-      <div class="m-stat">
-        <span class="m-stat-val">{{ r.no_commitment_today }}</span>
-        <span class="m-stat-lbl">Zero Today</span>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center;">
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="manager-empty-commitments">
+      <i data-lucide="inbox" class="icon-sm text-muted"></i>
+      <span class="text-muted">No personal commitments added by {{ r.manager }} yet.</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Staff Team Summary Footer Bar -->
+  <div class="manager-team-footer">
+    <div class="team-footer-label">
+      <i data-lucide="users" class="icon-sm"></i>
+      <span>Staff Team Overview ({{ r.team_size }} staff):</span>
+    </div>
+    <div class="team-footer-stats">
+      <span><strong>{{ r.total }}</strong> Tasks</span>
+      <span style="color:var(--teal);"><strong>{{ r.completed }}</strong> Done</span>
+      <span style="color:var(--red);"><strong>{{ r.missed }}</strong> Missed</span>
+      <span><strong>{{ r.no_commitment_today }}</strong> Zero Today</span>
+      <div class="team-footer-att">
         <span class="badge att-present"><i data-lucide="check-circle-2"></i>{{ r.present }}</span>
         <span class="badge att-wfh"><i data-lucide="home"></i>{{ r.wfh }}</span>
         <span class="badge att-absent"><i data-lucide="x-circle"></i>{{ r.absent }}</span>
       </div>
-      <div class="progress-wrap" style="width:130px;">
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" data-pct="{{ r.avg_completion_pct or 0 }}" style="width:0%"></div>
-        </div>
-        <span class="progress-pct">{{ r.avg_completion_pct or 0 }}%</span>
-      </div>
     </div>
+    <a href="{{ url_for('team', manager_id=r.id) }}" class="team-footer-link">
+      Open Full Team &rarr;
+    </a>
+  </div>
 
-    <i data-lucide="chevron-right" class="icon m-chevron"></i>
-  </a>
 </div>
 {% endfor %}
 {% else %}

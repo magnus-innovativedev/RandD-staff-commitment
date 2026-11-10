@@ -20,6 +20,17 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="StaffTrack">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+  <script>
+    window.deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      window.deferredPrompt = e;
+      window.dispatchEvent(new Event('pwa-prompt-available'));
+    });
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function(){});
+    }
+  </script>
   {% block head %}{% endblock %}
 </head>
 
@@ -138,9 +149,6 @@
         {% block breadcrumb %}<span class="breadcrumb"></span>{% endblock %}
       </div>
       <div class="topbar-actions">
-        <button type="button" class="btn btn-ghost btn-sm install-app-btn" id="installAppTopbarBtn" style="display:none;" title="Install StaffTrack Web App">
-          <i data-lucide="download" class="icon"></i> Install App
-        </button>
         {% block topbar_actions %}{% endblock %}
       </div>
     </header>

@@ -20,6 +20,17 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="StaffTrack">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+  <script>
+    window.deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      window.deferredPrompt = e;
+      window.dispatchEvent(new Event('pwa-prompt-available'));
+    });
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function(){});
+    }
+  </script>
 </head>
 
 <body>
@@ -73,10 +84,6 @@
       <p class="text-muted" style="text-align:center;margin-top:22px;font-size:.78rem;">
         Contact your administrator if you need access.
       </p>
-
-      <button type="button" class="btn btn-ghost w-full install-app-btn" id="installAppLoginBtn" style="display:none;margin-top:14px;padding:9px;font-size:.8rem;">
-        <i data-lucide="download" class="icon"></i> Install Web App
-      </button>
     </div>
   </div>
   <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>

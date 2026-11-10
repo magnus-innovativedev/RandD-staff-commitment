@@ -348,7 +348,7 @@ def cmo_summary(cmo_id):
     """One row per manager under the CMO."""
     _ensure_overdue_status_current()
     sql = text("""
-        SELECT m.id, m.name AS manager,
+        SELECT m.id, m.name AS manager, m.attendance_status AS manager_attendance,
                COUNT(DISTINCT s.id) AS team_size,
                COUNT(c.id) AS total,
                COUNT(*) FILTER (WHERE c.status = 'completed') AS completed,
@@ -373,7 +373,7 @@ def cmo_summary(cmo_id):
         LEFT JOIN users s       ON s.manager_id = m.id
         LEFT JOIN commitments c ON c.owner_id   = s.id
         WHERE m.manager_id = :cid AND m.role = 'manager'
-        GROUP BY m.id, m.name
+        GROUP BY m.id, m.name, m.attendance_status
         ORDER BY m.name
     """)
     return _cached_query(

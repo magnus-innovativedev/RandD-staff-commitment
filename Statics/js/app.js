@@ -263,67 +263,56 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ---------- PWA Web App Installation ---------- */
-  let deferredPrompt = null;
-  const installSidebarBtn = document.getElementById('installAppBtn');
-  const installTopbarBtn = document.getElementById('installAppTopbarBtn');
-  const installLoginBtn = document.getElementById('installAppLoginBtn');
-  const installButtons = [installSidebarBtn, installTopbarBtn, installLoginBtn].filter(Boolean);
-
+  const installBtn = document.getElementById('installAppBtn');
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
-    });
-  }
-
-  const showInstallButtons = () => {
-    if (isStandalone) return;
-    installButtons.forEach(btn => {
-      btn.style.display = btn.classList.contains('nav-item') ? 'flex' : 'inline-flex';
-    });
+  const showInstallBtn = () => {
+    if (isStandalone || !installBtn) return;
+    installBtn.style.display = 'flex';
     if (typeof lucide !== 'undefined') lucide.createIcons();
   };
 
+  if (window.deferredPrompt) {
+    showInstallBtn();
+  }
+  window.addEventListener('pwa-prompt-available', showInstallBtn);
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
-    deferredPrompt = e;
-    showInstallButtons();
+    window.deferredPrompt = e;
+    showInstallBtn();
   });
 
   window.addEventListener('appinstalled', () => {
-    deferredPrompt = null;
-    installButtons.forEach(btn => {
-      btn.style.display = 'none';
-    });
+    window.deferredPrompt = null;
+    if (installBtn) installBtn.style.display = 'none';
   });
 
   if (!isStandalone) {
-    setTimeout(showInstallButtons, 600);
+    setTimeout(showInstallBtn, 600);
   }
 
-  const handleInstallClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      try {
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          deferredPrompt = null;
-          installButtons.forEach(btn => { btn.style.display = 'none'; });
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (window.deferredPrompt) {
+        window.deferredPrompt.prompt();
+        try {
+          const choice = await window.deferredPrompt.userChoice;
+          if (choice && choice.outcome === 'accepted') {
+            window.deferredPrompt = null;
+            installBtn.style.display = 'none';
+          }
+        } catch (err) {
+          console.debug('Install error:', err);
         }
-      } catch (err) {}
-    } else {
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      if (isIOS) {
-        alert("To install StaffTrack on your iPhone or iPad:\n\n1. Tap the Share button in Safari (box with up arrow)\n2. Scroll down and tap 'Add to Home Screen'");
       } else {
-        alert("To install StaffTrack:\n\nClick the Install icon in your browser's address bar, or open the browser menu and select 'Install StaffTrack' or 'Install App'.");
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+          alert("To install StaffTrack on your iPhone or iPad:\n\n1. Tap the Share button in Safari (box with up arrow)\n2. Scroll down and tap 'Add to Home Screen'");
+        } else {
+          alert("To install StaffTrack:\n\n1. Click the Install icon in the browser address bar (top right)\nOR\n2. Open the browser menu (⋮) and click 'Install StaffTrack' or 'Save and share > Install StaffTrack'");
+        }
       }
-    }
-  };
-
-  installButtons.forEach(btn => {
-    btn.addEventListener('click', handleInstallClick);
-  });
+    });
+  }
 
 });

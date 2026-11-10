@@ -109,14 +109,18 @@ def not_found(_):
 # ------------------------------- pwa ----------------------------------
 @app.route("/manifest.json")
 def manifest():
-    return app.send_static_file("manifest.json")
+    response = app.send_static_file("manifest.json")
+    response.headers["Content-Type"] = "application/manifest+json; charset=utf-8"
+    response.headers["Cache-Control"] = "no-cache"
+    return response
 
 
 @app.route("/sw.js")
 def service_worker():
     response = app.send_static_file("js/sw.js")
-    response.headers["Content-Type"] = "application/javascript"
+    response.headers["Content-Type"] = "application/javascript; charset=utf-8"
     response.headers["Service-Worker-Allowed"] = "/"
+    response.headers["Cache-Control"] = "no-cache"
     return response
 
 
@@ -258,8 +262,11 @@ def team(manager_id=None):
 def cmo_overview():
     rows = Db.cmo_summary(g.user.id)
     zero_commitment_staff = Db.cmo_zero_commitment_staff(g.user.id)
+    for r in rows:
+        r["manager_commitments"] = Db.get_user_commitments(r["id"])
     return render_template("cmo.html", rows=rows,
-                           zero_commitment_staff=zero_commitment_staff)
+                           zero_commitment_staff=zero_commitment_staff,
+                           today=date.today())
 
 
 @app.route("/user/<int:uid>")

@@ -1,16 +1,17 @@
-const CACHE_NAME = 'stafftrack-v1';
-const PRECACHE_URLS = [
-  '/',
+const CACHE_NAME = 'stafftrack-v2';
+const STATIC_ASSETS = [
   '/manifest.json',
   '/static/css/style.css',
   '/static/js/app.js',
-  '/static/icons/icon-192.png'
+  '/static/icons/icon-192.png',
+  '/static/icons/icon-512.png',
+  '/static/icons/icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_URLS).catch(() => {});
+      return cache.addAll(STATIC_ASSETS);
     }).then(() => self.skipWaiting())
   );
 });
@@ -26,10 +27,9 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests, prefer network first
   if (event.request.method !== 'GET') return;
+  // Network first with fallback to cache for offline static assets
   event.respondWith(
     fetch(event.request).catch(() => caches.match(event.request))
   );
 });
-
