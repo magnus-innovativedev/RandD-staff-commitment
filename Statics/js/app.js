@@ -262,4 +262,68 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  /* ---------- PWA Web App Installation ---------- */
+  let deferredPrompt = null;
+  const installSidebarBtn = document.getElementById('installAppBtn');
+  const installTopbarBtn = document.getElementById('installAppTopbarBtn');
+  const installLoginBtn = document.getElementById('installAppLoginBtn');
+  const installButtons = [installSidebarBtn, installTopbarBtn, installLoginBtn].filter(Boolean);
+
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+    });
+  }
+
+  const showInstallButtons = () => {
+    if (isStandalone) return;
+    installButtons.forEach(btn => {
+      btn.style.display = btn.classList.contains('nav-item') ? 'flex' : 'inline-flex';
+    });
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  };
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallButtons();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    installButtons.forEach(btn => {
+      btn.style.display = 'none';
+    });
+  });
+
+  if (!isStandalone) {
+    setTimeout(showInstallButtons, 600);
+  }
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      try {
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          deferredPrompt = null;
+          installButtons.forEach(btn => { btn.style.display = 'none'; });
+        }
+      } catch (err) {}
+    } else {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS) {
+        alert("To install StaffTrack on your iPhone or iPad:\n\n1. Tap the Share button in Safari (box with up arrow)\n2. Scroll down and tap 'Add to Home Screen'");
+      } else {
+        alert("To install StaffTrack:\n\nClick the Install icon in your browser's address bar, or open the browser menu and select 'Install StaffTrack' or 'Install App'.");
+      }
+    }
+  };
+
+  installButtons.forEach(btn => {
+    btn.addEventListener('click', handleInstallClick);
+  });
+
 });

@@ -55,7 +55,7 @@ PRIORITIES = ("low", "medium", "high")
 @app.before_request
 def load_user():
     g.user = None
-    if request.endpoint == "static":
+    if request.endpoint in ("static", "manifest", "service_worker"):
         return
     Db.reset_attendance()
     uid = session.get("user_id")
@@ -104,6 +104,20 @@ def forbidden(_):
 def not_found(_):
     return render_template("error.html", code=404,
                            message="That page or record doesn't exist."), 404
+
+
+# ------------------------------- pwa ----------------------------------
+@app.route("/manifest.json")
+def manifest():
+    return app.send_static_file("manifest.json")
+
+
+@app.route("/sw.js")
+def service_worker():
+    response = app.send_static_file("js/sw.js")
+    response.headers["Content-Type"] = "application/javascript"
+    response.headers["Service-Worker-Allowed"] = "/"
+    return response
 
 
 # ------------------------------- auth----------------------------------

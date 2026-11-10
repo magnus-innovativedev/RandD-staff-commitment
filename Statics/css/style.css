@@ -2830,3 +2830,121 @@ tbody tr {
   height: 13px;
   stroke-width: 2.4;
 }
+
+
+/* ---------- PWA Web App Install Button ---------- */
+.install-app-btn {
+  color: var(--accent) !important;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.sidebar .install-app-btn {
+  width: 100%;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  margin-bottom: 4px;
+}
+
+.sidebar .install-app-btn:hover {
+  background: var(--surface-2) !important;
+  color: var(--accent-h) !important;
+}
+
+.sidebar .install-app-btn .nav-icon {
+  color: var(--accent);
+}
+
+.topbar .install-app-btn {
+  border: 1px solid #c7d2fe;
+  background: #eef2ff;
+  color: var(--accent) !important;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: .75rem;
+  font-weight: 600;
+}
+
+.topbar .install-app-btn:hover {
+  background: var(--accent);
+  color: #fff !important;
+  border-color: var(--accent);
+}
+
+.topbar .install-app-btn:hover .icon {
+  stroke: #fff !important;
+}
+
+.login-box .install-app-btn {
+  border: 1px solid var(--border-str);
+  color: var(--navy) !important;
+  border-radius: var(--radius-sm);
+}
+
+.login-box .install-app-btn:hover {
+  background: var(--surface-2);
+  border-color: var(--accent);
+  color: var(--accent) !important;
+}
+
+
+/* ---------- PWA Web App Install Button ---------- */
+.install-app-btn {
+  color: var(--accent) !important;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.sidebar .install-app-btn {
+  width: 100%;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  margin-bottom: 4px;
+}
+
+.sidebar .install-app-btn:hover {
+  background: var(--surface-2) !important;
+  color: var(--accent-h) !important;
+}
+
+.sidebar .install-app-btn .nav-icon {
+  color: var(--accent);
+}
+
+.topbar .install-app-btn {
+  border: 1px solid #c7d2fe;
+  background: #eef2ff;
+  color: var(--accent) !important;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: .75rem;
+  font-weight: 600;
+}
+
+.topbar .install-app-btn:hover {
+  background: var(--accent);
+  color: #fff !important;
+  border-color: var(--accent);
+}
+
+.topbar .install-app-btn:hover .icon {
+  stroke: #fff !important;
+}
+
+.login-box .install-app-btn {
+  border: 1px solid var(--border-str);
+  color: var(--navy) !important;
+  border-radius: var(--radius-sm);
+}
+
+.login-box .install-app-btn:hover {
+  background: var(--surface-2);
+  border-color: var(--accent);
+  color: var(--accent) !important;
+}

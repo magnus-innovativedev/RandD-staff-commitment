@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231a173d'/><path d='M20 70 L35 45 L50 55 L65 30 L80 40' stroke='%23f8f3e7' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a173d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="StaffTrack">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
   {% block head %}{% endblock %}
 </head>
 
@@ -107,6 +114,10 @@
     </nav>
 
     <div class="sidebar-footer">
+      <button type="button" class="nav-item install-app-btn" id="installAppBtn" data-tooltip="Install Web App" style="display:none;">
+        <span class="nav-icon"><i data-lucide="download" class="icon-sm"></i></span>
+        <span>Install App</span>
+      </button>
       <div class="nav-item" data-tooltip="Version 1.0">
         <span class="nav-icon"><i data-lucide="zap" class="icon-sm"></i></span>
         <span>v1.0</span>
@@ -127,6 +138,9 @@
         {% block breadcrumb %}<span class="breadcrumb"></span>{% endblock %}
       </div>
       <div class="topbar-actions">
+        <button type="button" class="btn btn-ghost btn-sm install-app-btn" id="installAppTopbarBtn" style="display:none;" title="Install StaffTrack Web App">
+          <i data-lucide="download" class="icon"></i> Install App
+        </button>
         {% block topbar_actions %}{% endblock %}
       </div>
     </header>
