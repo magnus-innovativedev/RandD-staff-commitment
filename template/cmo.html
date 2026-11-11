@@ -5,7 +5,7 @@
 {% block breadcrumb %}<span class="breadcrumb">All managers and their commitments &amp; teams at a glance</span>{% endblock %}
 
 {% block topbar_actions %}
-<button type="button" class="btn btn-primary btn-sm" data-assign-task-btn>
+<button type="button" class="btn btn-primary btn-sm" data-assign-task-btn onclick="window.openAssignTaskModal();">
   <i data-lucide="clipboard-plus" class="icon"></i> Assign Task to Manager
 </button>
 <a href="{{ url_for('add_user') }}" class="btn btn-ghost btn-sm">
@@ -139,7 +139,7 @@
             <span class="avatar-mini">{{ staff.staff[0].upper() }}</span>
             <span class="zero-person-name">{{ staff.staff }}</span>
           </a>
-          <button type="button" class="btn btn-primary btn-xs" data-assign-task-btn data-user-id="{{ staff.staff_id }}" data-user-name="{{ staff.staff }}">
+          <button type="button" class="btn btn-primary btn-xs" data-assign-task-btn data-user-id="{{ staff.staff_id }}" data-user-name="{{ staff.staff }}" onclick="event.stopPropagation(); window.openAssignTaskModal('{{ staff.staff_id }}', '{{ staff.staff | e }}');">
             <i data-lucide="plus-circle" class="icon-sm"></i> Assign Task
           </button>
         </div>
@@ -171,7 +171,7 @@
           <span class="avatar-mini">{{ mgr.manager[0].upper() }}</span>
           <span class="zero-person-name">{{ mgr.manager }}</span>
         </a>
-        <button type="button" class="btn btn-primary btn-xs" data-assign-task-btn data-user-id="{{ mgr.manager_id }}" data-user-name="{{ mgr.manager }}">
+        <button type="button" class="btn btn-primary btn-xs" data-assign-task-btn data-user-id="{{ mgr.manager_id }}" data-user-name="{{ mgr.manager }}" onclick="event.stopPropagation(); window.openAssignTaskModal('{{ mgr.manager_id }}', '{{ mgr.manager | e }}');">
           <i data-lucide="plus-circle" class="icon-sm"></i> Assign Task
         </button>
       </div>
@@ -221,7 +221,7 @@
             </div>
           </div>
           <div class="kpi-detail-actions">
-            <button type="button" class="btn btn-primary btn-xs" data-assign-task-btn data-user-id="{{ r.id }}" data-user-name="{{ r.manager }}">
+            <button type="button" class="btn btn-primary btn-xs" data-assign-task-btn data-user-id="{{ r.id }}" data-user-name="{{ r.manager }}" onclick="event.stopPropagation(); window.openAssignTaskModal('{{ r.id }}', '{{ r.manager | e }}');">
               <i data-lucide="plus-circle" class="icon-sm"></i> Assign Task
             </button>
             <a href="{{ url_for('team', manager_id=r.id) }}" class="btn btn-ghost btn-xs">
@@ -280,7 +280,7 @@
                 </div>
               </div>
             </div>
-            <button type="button" class="btn btn-primary btn-xs" data-assign-task-btn data-user-id="{{ s.staff_id }}" data-user-name="{{ s.staff_name }}">
+            <button type="button" class="btn btn-primary btn-xs" data-assign-task-btn data-user-id="{{ s.staff_id }}" data-user-name="{{ s.staff_name }}" onclick="event.stopPropagation(); window.openAssignTaskModal('{{ s.staff_id }}', '{{ s.staff_name | e }}');">
               <i data-lucide="plus-circle" class="icon-sm"></i> Assign Task
             </button>
           </div>
@@ -487,8 +487,8 @@
         </div>
       </div>
 
-      <div class="manager-card-actions" onclick="event.stopPropagation();">
-        <button type="button" class="btn btn-primary btn-sm" data-assign-task-btn data-user-id="{{ r.id }}" data-user-name="{{ r.manager }}" title="Assign task to {{ r.manager }}">
+      <div class="manager-card-actions">
+        <button type="button" class="btn btn-primary btn-sm" data-assign-task-btn data-user-id="{{ r.id }}" data-user-name="{{ r.manager }}" onclick="event.stopPropagation(); window.openAssignTaskModal('{{ r.id }}', '{{ r.manager | e }}');" title="Assign task to {{ r.manager }}">
           <i data-lucide="plus-circle" class="icon-sm"></i> Assign Task
         </button>
         <a href="{{ url_for('user_view', uid=r.id) }}" class="btn btn-ghost btn-sm" title="View &amp; manage {{ r.manager }}'s personal commitments">

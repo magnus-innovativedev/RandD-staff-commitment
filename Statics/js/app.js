@@ -51,7 +51,7 @@ window.openAssignTaskModal = function(userId, userName) {
   }
 };
 
-/* Delegated click handler for any assign task button */
+/* Delegated click handler for any assign task button (capture phase so no stopPropagation blocks it) */
 document.addEventListener('click', function(e) {
   const btn = e.target.closest('[data-assign-task-btn]');
   if (btn) {
@@ -61,7 +61,7 @@ document.addEventListener('click', function(e) {
     const uname = btn.getAttribute('data-user-name') || null;
     window.openAssignTaskModal(uid, uname);
   }
-});
+}, true);
 
 document.addEventListener('DOMContentLoaded', () => {
 
