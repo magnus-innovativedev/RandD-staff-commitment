@@ -15,7 +15,7 @@ class User(db.Model):
 
     # user.manager -> the boss, user.team -> the people reporting to this user
     manager = db.relationship("User", remote_side=[id], backref="team")
-    commitments = db.relationship("Commitment", backref="owner", lazy=True)
+    commitments = db.relationship("Commitment", foreign_keys="Commitment.owner_id", backref="owner", lazy=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -41,3 +41,4 @@ class Commitment(db.Model):
     status          = db.Column(db.String(15), default="pending")
     created_at      = db.Column(db.DateTime, server_default=db.func.now())
     completed_at    = db.Column(db.DateTime)
+    assigned_by_id  = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)

@@ -125,7 +125,7 @@
     </nav>
 
     <div class="sidebar-footer">
-      <button type="button" class="nav-item install-app-btn" id="installAppBtn" data-tooltip="Install Web App" style="display:none;">
+      <button type="button" class="nav-item install-app-btn" id="installAppBtn" data-tooltip="Install Web App">
         <span class="nav-icon"><i data-lucide="download" class="icon-sm"></i></span>
         <span>Install App</span>
       </button>
@@ -171,6 +171,71 @@
     </main>
 
   </div>
+
+  {% if g.user and g.user.role in ('cmo', 'manager', 'developer') %}
+  <!-- ASSIGN TASK MODAL -->
+  <div id="assignTaskModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <i data-lucide="clipboard-plus" class="icon" style="color:var(--accent);"></i>
+        <h3 id="assignTaskModalTitle">Assign Task</h3>
+        <button type="button" onclick="closeModal('assignTaskModal')" class="btn btn-ghost btn-icon" aria-label="Close">
+          <i data-lucide="x" class="icon"></i>
+        </button>
+      </div>
+      <form method="POST" action="{{ url_for('add_commitment') }}" class="modal-body" id="assignTaskModalForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ request.full_path or request.path }}">
+
+        <div class="form-group mb-4">
+          <label for="assignTaskOwnerSelect">Assign To *</label>
+          <select name="owner_id" id="assignTaskOwnerSelect" class="form-control" required>
+            {% if assignable_users %}
+              {% for u in assignable_users %}
+              <option value="{{ u.id }}">{{ u.name }} ({{ u.role | title }})</option>
+              {% endfor %}
+            {% else %}
+              <option value="" disabled selected>Select a member</option>
+            {% endif %}
+          </select>
+        </div>
+
+        <div class="form-group mb-4">
+          <label>Task / Commitment *</label>
+          <input type="text" name="commitment_text" class="form-control" placeholder="What task are you assigning?" required>
+        </div>
+        <div class="form-group mb-4">
+          <label>Description</label>
+          <textarea name="description" class="form-control" placeholder="Details, requirements, or links" rows="3"></textarea>
+        </div>
+        <div class="form-grid mb-4">
+          <div class="form-group">
+            <label>Start Date *</label>
+            <input type="date" name="start_date" class="form-control" value="{{ today }}" required>
+          </div>
+          <div class="form-group">
+            <label>End Date *</label>
+            <input type="date" name="end_date" class="form-control" required>
+          </div>
+        </div>
+        <div class="form-group mb-4">
+          <label>Priority</label>
+          <select name="priority" class="form-control">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('assignTaskModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="plus-circle" class="icon"></i> Assign Task
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
 
   <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>

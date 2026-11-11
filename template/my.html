@@ -165,6 +165,12 @@
               {{ c.duration_days }}d
             </span>
             {% endif %}
+            {% if c.assigned_by_name %}
+            <span class="meta-chip meta-chip-assigned" title="Task assigned by {{ c.assigned_by_name }}">
+              <i data-lucide="user-check"></i>
+              Assigned by {{ c.assigned_by_name }}
+            </span>
+            {% endif %}
 
             {% if c.status != 'completed' %}
               {% set days_diff = (c.end_date - today).days %}

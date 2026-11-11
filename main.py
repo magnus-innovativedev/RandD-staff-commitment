@@ -68,6 +68,16 @@ def load_user():
             session.pop("user_id", None)
 
 
+@app.context_processor
+def inject_globals():
+    ctx = {"today": date.today()}
+    if hasattr(g, "user") and g.user and g.user.role in ("cmo", "manager", "developer"):
+        ctx["assignable_users"] = Db.get_assignable_users(g.user)
+    else:
+        ctx["assignable_users"] = []
+    return ctx
+
+
 def login_required(roles=None):
     def decorator(view):
         @wraps(view)
@@ -166,8 +176,25 @@ def my():
 
 
 @app.route("/commitments/add", methods=["POST"])
-@login_required(roles=["staff", "manager"])
+@login_required(roles=["staff", "manager", "cmo", "developer"])
 def add_commitment():
+    owner_id = request.form.get("owner_id")
+    if owner_id:
+        try:
+            owner_id = int(owner_id)
+        except ValueError:
+            abort(400)
+    else:
+        owner_id = g.user.id
+
+    target_user = Db.get_user_by_id(owner_id)
+    if not target_user:
+        abort(404)
+
+    if not Db.can_assign_commitment(g.user, target_user):
+        flash("You do not have permission to assign commitments to this user.", "error")
+        return redirect(request.form.get("next") or request.referrer or url_for("my"))
+
     text_ = request.form.get("commitment_text", "").strip()
     description = request.form.get("description", "").strip() or None
     start = parse_date(request.form.get("start_date"))
@@ -181,9 +208,15 @@ def add_commitment():
     elif end < start:
         flash("End date can't be before the start date.", "error")
     else:
-        Db.add_commitment(g.user.id, text_, description, start, end, priority)
-        flash("Commitment added.", "success")
-    return redirect(url_for("my"))
+        assigned_by = g.user.id if g.user.id != owner_id else None
+        Db.add_commitment(owner_id, text_, description, start, end, priority, assigned_by_id=assigned_by)
+        if owner_id == g.user.id:
+            flash("Commitment added.", "success")
+        else:
+            flash(f"Task successfully assigned to {target_user.name}.", "success")
+
+    next_url = request.form.get("next") or request.referrer
+    return redirect(next_url or url_for("my"))
 
 
 @app.route("/commitments/<int:cid>/progress", methods=["POST"])
@@ -262,10 +295,12 @@ def team(manager_id=None):
 def cmo_overview():
     rows = Db.cmo_summary(g.user.id)
     zero_commitment_staff = Db.cmo_zero_commitment_staff(g.user.id)
+    zero_commitment_managers = Db.cmo_zero_commitment_managers(g.user.id)
     for r in rows:
         r["manager_commitments"] = Db.get_user_commitments(r["id"])
     return render_template("cmo.html", rows=rows,
                            zero_commitment_staff=zero_commitment_staff,
+                           zero_commitment_managers=zero_commitment_managers,
                            today=date.today())
 
 

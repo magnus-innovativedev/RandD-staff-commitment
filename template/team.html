@@ -7,8 +7,13 @@
 {% endblock %}
 
 {% block topbar_actions %}
+{% if g.user.role in ('manager', 'cmo') %}
+<button type="button" class="btn btn-primary btn-sm" data-assign-task-btn>
+  <i data-lucide="clipboard-plus" class="icon"></i> Assign Task to Staff
+</button>
+{% endif %}
 {% if g.user.role == 'cmo' %}
-<a href="{{ url_for('cmo_overview') }}" class="btn btn-primary btn-back">
+<a href="{{ url_for('cmo_overview') }}" class="btn btn-ghost btn-sm">
   <i data-lucide="arrow-left" class="icon icon-arrow icon-arrow-left"></i> Back to Overview
 </a>
 {% endif %}
@@ -86,7 +91,7 @@
           <th class="col-center">Late</th>
           <th class="col-center">Completed</th>
           <th>Avg Progress</th>
-          <th style="width:36px;"></th>
+          <th style="width:120px; text-align:right; padding-right:20px;">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -124,7 +129,10 @@
               <span class="progress-pct">{{ r.avg_completion_pct or 0 }}%</span>
             </div>
           </td>
-          <td style="text-align:right; padding-right:16px;">
+          <td style="text-align:right; padding-right:16px; white-space:nowrap;">
+            <button type="button" class="btn btn-ghost btn-xs" data-assign-task-btn data-user-id="{{ r.id }}" data-user-name="{{ r.staff }}" title="Assign task to {{ r.staff }}" style="margin-right:8px;">
+              <i data-lucide="plus-circle" class="icon-sm"></i> Assign
+            </button>
             <i data-lucide="chevron-right" class="icon-sm row-chevron"
               style="color:var(--text-muted); transition:transform 0.2s ease, color 0.2s ease;"></i>
           </td>

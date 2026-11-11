@@ -37,7 +37,7 @@
 {% set in_prog = commitments | selectattr('status','equalto','in_progress') | list | length %}
 {% set missed = commitments | selectattr('status','equalto','missed') | list | length %}
 
-<div class="profile-back-row">
+<div class="profile-back-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
   {% if g.user.role == 'cmo' %}
   <a href="{{ url_for('cmo_overview') }}" class="btn btn-primary btn-back">
     <i data-lucide="arrow-left" class="icon icon-arrow icon-arrow-left"></i> Back to Overview
@@ -46,6 +46,12 @@
   <a href="{{ url_for('team') }}" class="btn btn-primary btn-back">
     <i data-lucide="arrow-left" class="icon icon-arrow icon-arrow-left"></i> Back to Team
   </a>
+  {% endif %}
+
+  {% if g.user and (g.user.role == 'cmo' or (g.user.role == 'manager' and person.manager_id == g.user.id) or g.user.role == 'developer') %}
+  <button type="button" class="btn btn-primary btn-sm" data-assign-task-btn data-user-id="{{ person.id }}" data-user-name="{{ person.name }}">
+    <i data-lucide="clipboard-plus" class="icon"></i> Assign Task to {{ person.name.split()[0] }}
+  </button>
   {% endif %}
 </div>
 
@@ -111,6 +117,12 @@
             <span class="meta-chip">
               <i data-lucide="clock"></i>
               {{ c.duration_days }}d
+            </span>
+            {% endif %}
+            {% if c.assigned_by_name %}
+            <span class="meta-chip meta-chip-assigned" title="Task assigned by {{ c.assigned_by_name }}">
+              <i data-lucide="user-check"></i>
+              Assigned by {{ c.assigned_by_name }}
             </span>
             {% endif %}
 

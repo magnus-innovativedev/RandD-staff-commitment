@@ -28,6 +28,7 @@ def _ensure_schema():
         try:
             db.session.execute(text("ALTER TABLE commitments ADD COLUMN IF NOT EXISTS reason TEXT;"))
             db.session.execute(text("ALTER TABLE commitments ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP;"))
+            db.session.execute(text("ALTER TABLE commitments ADD COLUMN IF NOT EXISTS assigned_by_id INTEGER REFERENCES users(id);"))
             db.session.commit()
             _schema_updated = True
         except Exception:
@@ -189,18 +190,54 @@ def delete_user(user_id):
 
 # ---------------- COMMITMENTS ----------------
 def add_commitment(owner_id, commitment_text, description, start_date, end_date,
-                   priority="medium"):
+                   priority="medium", assigned_by_id=None):
     _, Commitment = _models()
+    _ensure_schema()
     c = Commitment(owner_id=owner_id, commitment_text=commitment_text,
                    description=description, start_date=start_date,
-                   end_date=end_date, priority=priority)
+                   end_date=end_date, priority=priority,
+                   assigned_by_id=assigned_by_id)
     db.session.add(c)
     _commit()
     return c
 
 
+def can_assign_commitment(assigner, target_user):
+    """Check if assigner has permission to assign task to target_user."""
+    if not assigner or not target_user:
+        return False
+    if assigner.id == target_user.id:
+        return assigner.role in ("staff", "manager")
+    if assigner.role == "developer":
+        return True
+    if assigner.role == "cmo":
+        return target_user.role in ("manager", "staff")
+    if assigner.role == "manager":
+        return target_user.role == "staff" and target_user.manager_id == assigner.id
+    return False
+
+
+def get_assignable_users(user):
+    """Returns users that the given user can assign tasks to."""
+    if not user:
+        return []
+    User, _ = _models()
+    if user.role == "cmo":
+        # CMO can assign tasks to all managers and all staff
+        mgrs = User.query.filter_by(role="manager").order_by(User.name).all()
+        staff = User.query.filter_by(role="staff").order_by(User.name).all()
+        return mgrs + staff
+    elif user.role == "manager":
+        # Manager can assign tasks to their staff members
+        return (User.query.filter_by(role="staff", manager_id=user.id)
+                .order_by(User.name).all())
+    elif user.role == "developer":
+        return User.query.filter(User.role.in_(("cmo", "manager", "staff"))).order_by(User.name).all()
+    return []
+
+
 def get_user_commitments(user_id):
-    _, Commitment = _models()
+    User, Commitment = _models()
     _ensure_overdue_status_current()
 
     def load():
@@ -209,11 +246,20 @@ def get_user_commitments(user_id):
         fields = (
             "id", "owner_id", "commitment_text", "description", "reason", "start_date",
             "end_date", "duration_days", "completion_pct", "priority", "status",
-            "created_at", "completed_at",
+            "created_at", "completed_at", "assigned_by_id",
         )
         rows = []
+        user_cache = {}
         for commitment in commitments:
-            row = {field: getattr(commitment, field) for field in fields}
+            row = {field: getattr(commitment, field, None) for field in fields}
+            assigned_by_id = row.get("assigned_by_id")
+            if assigned_by_id and assigned_by_id != user_id:
+                if assigned_by_id not in user_cache:
+                    u = db.session.get(User, assigned_by_id)
+                    user_cache[assigned_by_id] = (u.name, u.role) if u else (None, None)
+                row["assigned_by_name"], row["assigned_by_role"] = user_cache[assigned_by_id]
+            else:
+                row["assigned_by_name"], row["assigned_by_role"] = None, None
             if row.get("status") == "completed":
                 comp_dt = row.get("completed_at")
                 if comp_dt:
@@ -403,6 +449,29 @@ def cmo_zero_commitment_staff(cmo_id):
     """)
     return _cached_query(
         ("cmo_zero_commitment_staff", cmo_id, date.today()),
+        lambda: [dict(row) for row in db.session.execute(
+            sql, {"cid": cmo_id}).mappings().all()],
+    )
+
+
+def cmo_zero_commitment_managers(cmo_id):
+    """Managers under a CMO whose commitments do not cover today's date."""
+    sql = text("""
+        SELECT m.id AS manager_id, m.name AS manager
+        FROM users m
+        WHERE m.manager_id = :cid
+          AND m.role = 'manager'
+          AND NOT EXISTS (
+              SELECT 1
+              FROM commitments c
+              WHERE c.owner_id = m.id
+                AND c.start_date <= CURRENT_DATE
+                AND c.end_date >= CURRENT_DATE
+          )
+        ORDER BY m.name
+    """)
+    return _cached_query(
+        ("cmo_zero_commitment_managers", cmo_id, date.today()),
         lambda: [dict(row) for row in db.session.execute(
             sql, {"cid": cmo_id}).mappings().all()],
     )

@@ -2,6 +2,67 @@
    StaffTrack – app.js
    ============================================ */
 
+/* ---------- Global Modal Functions (Immediately Available) ---------- */
+window.openModal = function(id) {
+  const m = document.getElementById(id);
+  if (m) {
+    m.classList.add('open');
+    m.removeAttribute('hidden');
+    m.style.display = 'flex';
+  } else {
+    console.error('Modal with id "' + id + '" not found in DOM.');
+  }
+};
+
+window.closeModal = function(id) {
+  const m = document.getElementById(id);
+  if (m) {
+    m.classList.remove('open');
+    m.style.display = '';
+  }
+};
+
+window.openAssignTaskModal = function(userId, userName) {
+  const modal = document.getElementById('assignTaskModal');
+  if (!modal) {
+    console.error('assignTaskModal element not found');
+    return;
+  }
+  const select = document.getElementById('assignTaskOwnerSelect');
+  const title = document.getElementById('assignTaskModalTitle');
+  if (select && userId) {
+    let opt = select.querySelector('option[value="' + userId + '"]');
+    if (!opt && userName) {
+      opt = document.createElement('option');
+      opt.value = String(userId);
+      opt.textContent = userName;
+      select.appendChild(opt);
+    }
+    select.value = String(userId);
+  }
+  if (title && userName) {
+    title.textContent = 'Assign Task to ' + userName;
+  } else if (title) {
+    title.textContent = 'Assign Task';
+  }
+  window.openModal('assignTaskModal');
+  if (window.lucide && window.lucide.createIcons) {
+    window.lucide.createIcons();
+  }
+};
+
+/* Delegated click handler for any assign task button */
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-assign-task-btn]');
+  if (btn) {
+    e.preventDefault();
+    e.stopPropagation();
+    const uid = btn.getAttribute('data-user-id') || null;
+    const uname = btn.getAttribute('data-user-name') || null;
+    window.openAssignTaskModal(uid, uname);
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -79,13 +140,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ---------- Clickable rows (instant feedback) ---------- */
-  document.querySelectorAll('tr.clickable-row[data-href]').forEach(row => {
-    row.addEventListener('click', (e) => {
-      if (e.target.closest('a, button, input, select, textarea')) return;
-      row.classList.add('row-navigating');
+  /* ---------- Clickable rows and cards (instant feedback) ---------- */
+  document.querySelectorAll('tr.clickable-row[data-href], .clickable-card[data-href]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('a, button, input, select, textarea, [data-assign-task-btn]')) return;
+      el.classList.add('row-navigating');
       requestAnimationFrame(() => {
-        window.location.href = row.dataset.href;
+        window.location.href = el.dataset.href;
       });
     });
   });
@@ -152,17 +213,151 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ---------- Toggle staff with no commitment covering today ---------- */
+  /* ---------- CMO Zero Commitments Toggles & Card Filtering ---------- */
   const zeroCommitmentToggle = document.getElementById('zeroCommitmentToggle');
   const zeroCommitmentDetails = document.getElementById('zeroCommitmentDetails');
-  if (zeroCommitmentToggle && zeroCommitmentDetails) {
-    zeroCommitmentToggle.addEventListener('click', () => {
-      const expanded = zeroCommitmentToggle.getAttribute('aria-expanded') !== 'true';
-      zeroCommitmentToggle.setAttribute('aria-expanded', String(expanded));
-      zeroCommitmentDetails.hidden = !expanded;
-      if (expanded) zeroCommitmentDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const zeroManagerCommitmentToggle = document.getElementById('zeroManagerCommitmentToggle');
+  const zeroManagerCommitmentDetails = document.getElementById('zeroManagerCommitmentDetails');
+  const managerCards = document.querySelectorAll('[data-manager-card]');
+  const cmoActiveFilterStatus = document.getElementById('cmoActiveFilterStatus');
+  const cmoActiveFilterText = document.getElementById('cmoActiveFilterText');
+  const cmoResetFilterBtn = document.getElementById('cmoResetFilterBtn');
+  const cmoEmptyResetBtn = document.getElementById('cmoEmptyResetBtn');
+  const cmoFilterEmptyState = document.getElementById('cmoFilterEmptyState');
+  const cmoManagerCountBadge = document.getElementById('cmoManagerCountBadge');
+  const totalManagerCount = managerCards.length;
+
+  const resetCmoFilter = () => {
+    if (zeroCommitmentToggle) {
+      zeroCommitmentToggle.setAttribute('aria-expanded', 'false');
+      zeroCommitmentToggle.classList.remove('active-filter');
+    }
+    if (zeroCommitmentDetails) zeroCommitmentDetails.hidden = true;
+
+    if (zeroManagerCommitmentToggle) {
+      zeroManagerCommitmentToggle.setAttribute('aria-expanded', 'false');
+      zeroManagerCommitmentToggle.classList.remove('active-filter');
+    }
+    if (zeroManagerCommitmentDetails) zeroManagerCommitmentDetails.hidden = true;
+
+    managerCards.forEach(card => {
+      card.style.display = '';
+    });
+
+    if (cmoActiveFilterStatus) cmoActiveFilterStatus.hidden = true;
+    if (cmoFilterEmptyState) cmoFilterEmptyState.hidden = true;
+    if (cmoManagerCountBadge) cmoManagerCountBadge.textContent = `${totalManagerCount} managers`;
+  };
+
+  const applyCmoFilter = (type) => {
+    let matchedCount = 0;
+
+    if (type === 'staff') {
+      // Activate staff zero alert, collapse manager zero alert
+      if (zeroCommitmentToggle) {
+        zeroCommitmentToggle.setAttribute('aria-expanded', 'true');
+        zeroCommitmentToggle.classList.add('active-filter');
+      }
+      if (zeroCommitmentDetails) zeroCommitmentDetails.hidden = false;
+
+      if (zeroManagerCommitmentToggle) {
+        zeroManagerCommitmentToggle.setAttribute('aria-expanded', 'false');
+        zeroManagerCommitmentToggle.classList.remove('active-filter');
+      }
+      if (zeroManagerCommitmentDetails) zeroManagerCommitmentDetails.hidden = true;
+
+      // Filter manager cards: only keep managers whose staff have zero commitments
+      managerCards.forEach(card => {
+        const staffZero = parseInt(card.dataset.staffZeroCount || '0', 10);
+        const match = staffZero > 0;
+        card.style.display = match ? '' : 'none';
+        if (match) matchedCount++;
+      });
+
+      if (cmoActiveFilterText) {
+        cmoActiveFilterText.textContent = `Staff Zero Commitments (${matchedCount} managers)`;
+      }
+      if (cmoActiveFilterStatus) cmoActiveFilterStatus.hidden = false;
+      if (cmoManagerCountBadge) cmoManagerCountBadge.textContent = `${matchedCount} of ${totalManagerCount} managers`;
+      if (cmoFilterEmptyState) cmoFilterEmptyState.hidden = matchedCount > 0;
+
+      if (zeroCommitmentDetails) {
+        zeroCommitmentDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else if (type === 'manager') {
+      // Activate manager zero alert, collapse staff zero alert
+      if (zeroManagerCommitmentToggle) {
+        zeroManagerCommitmentToggle.setAttribute('aria-expanded', 'true');
+        zeroManagerCommitmentToggle.classList.add('active-filter');
+      }
+      if (zeroManagerCommitmentDetails) zeroManagerCommitmentDetails.hidden = false;
+
+      if (zeroCommitmentToggle) {
+        zeroCommitmentToggle.setAttribute('aria-expanded', 'false');
+        zeroCommitmentToggle.classList.remove('active-filter');
+      }
+      if (zeroCommitmentDetails) zeroCommitmentDetails.hidden = true;
+
+      // Filter manager cards: only keep managers who themselves have zero commitments
+      managerCards.forEach(card => {
+        const match = card.dataset.managerHasZero === 'true';
+        card.style.display = match ? '' : 'none';
+        if (match) matchedCount++;
+      });
+
+      if (cmoActiveFilterText) {
+        cmoActiveFilterText.textContent = `Managers with Zero Commitments (${matchedCount} managers)`;
+      }
+      if (cmoActiveFilterStatus) cmoActiveFilterStatus.hidden = false;
+      if (cmoManagerCountBadge) cmoManagerCountBadge.textContent = `${matchedCount} of ${totalManagerCount} managers`;
+      if (cmoFilterEmptyState) cmoFilterEmptyState.hidden = matchedCount > 0;
+
+      if (zeroManagerCommitmentDetails) {
+        zeroManagerCommitmentDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  };
+
+  if (zeroCommitmentToggle) {
+    zeroCommitmentToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      const isAlreadyActive = zeroCommitmentToggle.getAttribute('aria-expanded') === 'true';
+      if (isAlreadyActive) {
+        resetCmoFilter();
+      } else {
+        applyCmoFilter('staff');
+      }
     });
   }
+
+  if (zeroManagerCommitmentToggle) {
+    zeroManagerCommitmentToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      const isAlreadyActive = zeroManagerCommitmentToggle.getAttribute('aria-expanded') === 'true';
+      if (isAlreadyActive) {
+        resetCmoFilter();
+      } else {
+        applyCmoFilter('manager');
+      }
+    });
+  }
+
+  if (cmoResetFilterBtn) {
+    cmoResetFilterBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      resetCmoFilter();
+    });
+  }
+
+  if (cmoEmptyResetBtn) {
+    cmoEmptyResetBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      resetCmoFilter();
+    });
+  }
+
 
   const teamZeroFilter = document.querySelector('[data-zero-commitment-team-filter]');
   if (teamZeroFilter) {
@@ -266,20 +461,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const installBtn = document.getElementById('installAppBtn');
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
-  const showInstallBtn = () => {
-    if (isStandalone || !installBtn) return;
-    installBtn.style.display = 'flex';
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-  };
-
-  if (window.deferredPrompt) {
-    showInstallBtn();
+  // Hide the button if already installed as standalone app
+  if (isStandalone && installBtn) {
+    installBtn.style.display = 'none';
   }
-  window.addEventListener('pwa-prompt-available', showInstallBtn);
+
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     window.deferredPrompt = e;
-    showInstallBtn();
   });
 
   window.addEventListener('appinstalled', () => {
@@ -287,13 +476,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (installBtn) installBtn.style.display = 'none';
   });
 
-  if (!isStandalone) {
-    setTimeout(showInstallBtn, 600);
-  }
-
   if (installBtn) {
     installBtn.addEventListener('click', async () => {
       if (window.deferredPrompt) {
+        // Directly trigger the native browser install prompt
         window.deferredPrompt.prompt();
         try {
           const choice = await window.deferredPrompt.userChoice;
@@ -305,12 +491,17 @@ document.addEventListener('DOMContentLoaded', () => {
           console.debug('Install error:', err);
         }
       } else {
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        if (isIOS) {
-          alert("To install StaffTrack on your iPhone or iPad:\n\n1. Tap the Share button in Safari (box with up arrow)\n2. Scroll down and tap 'Add to Home Screen'");
-        } else {
-          alert("To install StaffTrack:\n\n1. Click the Install icon in the browser address bar (top right)\nOR\n2. Open the browser menu (⋮) and click 'Install StaffTrack' or 'Save and share > Install StaffTrack'");
+        // Fallback: use getInstalledRelatedApps or trigger via browser API
+        if ('getInstalledRelatedApps' in navigator) {
+          const relatedApps = await navigator.getInstalledRelatedApps();
+          if (relatedApps.length > 0) {
+            installBtn.style.display = 'none';
+            return;
+          }
         }
+        // If no deferred prompt yet, try triggering it by navigating
+        // Chrome on Android sometimes needs a re-visit
+        window.location.reload();
       }
     });
   }
