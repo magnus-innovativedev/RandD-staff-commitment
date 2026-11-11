@@ -1,11 +1,11 @@
-const CACHE_NAME = 'stafftrack-v2';
+const CACHE_NAME = 'stafftrack-v3';
 const STATIC_ASSETS = [
   '/manifest.json',
-  '/static/css/style.css',
-  '/static/js/app.js',
-  '/static/icons/icon-192.png',
-  '/static/icons/icon-512.png',
-  '/static/icons/icon.svg'
+  '/Statics/css/style.css',
+  '/Statics/js/app.js',
+  '/Statics/icons/icon-192.png',
+  '/Statics/icons/icon-512.png',
+  '/Statics/icons/icon.svg'
 ];
 
 self.addEventListener('install', (event) => {

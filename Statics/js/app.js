@@ -424,20 +424,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ---------- Modals ---------- */
-  window.openModal = (id) => {
-    const m = document.getElementById(id);
-    if (m) m.classList.add('open');
-  };
-  window.closeModal = (id) => {
-    const m = document.getElementById(id);
-    if (m) m.classList.remove('open');
-  };
   document.querySelectorAll('.modal-backdrop').forEach(m => {
-    m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); });
+    m.addEventListener('click', (e) => { if (e.target === m) closeModal(m.id); });
   });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
+      document.querySelectorAll('.modal-backdrop.open').forEach(m => closeModal(m.id));
     }
   });
 
