@@ -1,5 +1,6 @@
-const CACHE_NAME = 'stafftrack-v3';
+const CACHE_NAME = 'stafftrack-v4';
 const STATIC_ASSETS = [
+  '/',
   '/manifest.json',
   '/Statics/css/style.css',
   '/Statics/js/app.js',
@@ -11,7 +12,9 @@ const STATIC_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      return cache.addAll(STATIC_ASSETS).catch((err) => {
+        console.warn('SW cache.addAll non-critical warning:', err);
+      });
     }).then(() => self.skipWaiting())
   );
 });

@@ -134,6 +134,11 @@ def service_worker():
     return response
 
 
+@app.route("/static/<path:filename>")
+def static_alias(filename):
+    return app.send_static_file(filename)
+
+
 # ------------------------------- auth----------------------------------
 @app.route("/")
 def index():

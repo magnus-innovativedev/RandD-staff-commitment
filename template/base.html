@@ -237,6 +237,50 @@
   </div>
   {% endif %}
 
+  <!-- PWA INSTALL GUIDE MODAL -->
+  <div id="pwaInstallGuideModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <i data-lucide="download" class="icon" style="color:var(--accent);"></i>
+        <h3>Install StaffTrack</h3>
+        <button type="button" onclick="closeModal('pwaInstallGuideModal')" class="btn btn-ghost btn-icon" aria-label="Close">
+          <i data-lucide="x" class="icon"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="pwa-install-guide">
+          <p class="mb-3" style="font-size:0.95rem;color:var(--navy);">Install StaffTrack on your device for fast one-click access and an app-like experience.</p>
+          
+          <div class="pwa-instruction-box mb-3" id="pwaDesktopGuide">
+            <h4 style="font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+              <i data-lucide="monitor" class="icon-sm"></i> On Desktop (Chrome / Edge / Brave):
+            </h4>
+            <ol style="padding-left:18px;line-height:1.6;font-size:0.88rem;color:var(--text-muted);">
+              <li>Click the <strong>Install icon (⊕)</strong> in your browser's address bar (top right).</li>
+              <li>Or click the browser menu (<strong>&vellip;</strong>) and select <strong>"Install StaffTrack"</strong>.</li>
+            </ol>
+          </div>
+
+          <div class="pwa-instruction-box mb-3" id="pwaMobileGuide">
+            <h4 style="font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+              <i data-lucide="smartphone" class="icon-sm"></i> On Mobile / Tablet:
+            </h4>
+            <ul style="padding-left:18px;line-height:1.6;font-size:0.88rem;color:var(--text-muted);list-style:none;">
+              <li class="mb-1"><strong>Android (Chrome):</strong> Tap the menu (<strong>&vellip;</strong>) and select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</li>
+              <li><strong>iPhone / iPad (Safari):</strong> Tap the <strong>Share</strong> button and choose <strong>"Add to Home Screen"</strong>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-primary" id="pwaTriggerPromptBtn">
+            <i data-lucide="download" class="icon-sm"></i> Install Now
+          </button>
+          <button type="button" class="btn btn-ghost" onclick="closeModal('pwaInstallGuideModal')">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   {% block scripts %}{% endblock %}

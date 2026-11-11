@@ -3811,3 +3811,10 @@ tbody tr {
 .sidebar .install-app-btn .nav-icon {
   color: var(--accent);
 }
+
+.pwa-instruction-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}

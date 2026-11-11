@@ -530,32 +530,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if (installBtn) installBtn.style.display = 'none';
   });
 
+  const triggerPwaInstall = async () => {
+    if (window.deferredPrompt) {
+      window.deferredPrompt.prompt();
+      try {
+        const choice = await window.deferredPrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          window.deferredPrompt = null;
+          if (installBtn) installBtn.style.display = 'none';
+          window.closeModal('pwaInstallGuideModal');
+        }
+      } catch (err) {
+        console.debug('PWA install error:', err);
+      }
+    } else {
+      // If browser hasn't prepared deferredPrompt yet, open helpful install guide modal
+      window.openModal('pwaInstallGuideModal');
+    }
+  };
+
   if (installBtn) {
-    installBtn.addEventListener('click', async () => {
+    installBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      triggerPwaInstall();
+    });
+  }
+
+  const pwaTriggerPromptBtn = document.getElementById('pwaTriggerPromptBtn');
+  if (pwaTriggerPromptBtn) {
+    pwaTriggerPromptBtn.addEventListener('click', (e) => {
+      e.preventDefault();
       if (window.deferredPrompt) {
-        // Directly trigger the native browser install prompt
-        window.deferredPrompt.prompt();
-        try {
-          const choice = await window.deferredPrompt.userChoice;
-          if (choice && choice.outcome === 'accepted') {
-            window.deferredPrompt = null;
-            installBtn.style.display = 'none';
-          }
-        } catch (err) {
-          console.debug('Install error:', err);
-        }
+        triggerPwaInstall();
       } else {
-        // Fallback: use getInstalledRelatedApps or trigger via browser API
-        if ('getInstalledRelatedApps' in navigator) {
-          const relatedApps = await navigator.getInstalledRelatedApps();
-          if (relatedApps.length > 0) {
-            installBtn.style.display = 'none';
-            return;
-          }
-        }
-        // If no deferred prompt yet, try triggering it by navigating
-        // Chrome on Android sometimes needs a re-visit
-        window.location.reload();
+        alert("Please use the install icon (⊕) in your browser address bar or menu (⋮) -> 'Install StaffTrack'.");
       }
     });
   }
