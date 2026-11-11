@@ -227,6 +227,67 @@ document.addEventListener('DOMContentLoaded', () => {
   const cmoManagerCountBadge = document.getElementById('cmoManagerCountBadge');
   const totalManagerCount = managerCards.length;
 
+  /* ---------- CMO Top KPI Cards Details Toggles ---------- */
+  const kpiPanels = [
+    { toggle: document.getElementById('kpiManagersToggle'), panel: document.getElementById('kpiDetailsManagers') },
+    { toggle: document.getElementById('kpiStaffToggle'), panel: document.getElementById('kpiDetailsStaff') },
+    { toggle: document.getElementById('kpiManagerCommitmentsToggle'), panel: document.getElementById('kpiDetailsManagerCommitments') },
+    { toggle: document.getElementById('kpiTasksToggle'), panel: document.getElementById('kpiDetailsStaffTasks') }
+  ];
+
+  const closeAllKpiPanels = () => {
+    kpiPanels.forEach(({ toggle, panel }) => {
+      if (toggle) toggle.setAttribute('aria-expanded', 'false');
+      if (panel) panel.hidden = true;
+    });
+  };
+
+  kpiPanels.forEach(({ toggle, panel }) => {
+    if (!toggle || !panel) return;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+
+      if (isExpanded) {
+        toggle.setAttribute('aria-expanded', 'false');
+        panel.hidden = true;
+      } else {
+        closeAllKpiPanels();
+        resetCmoFilter();
+
+        toggle.setAttribute('aria-expanded', 'true');
+        panel.hidden = false;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    toggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle.click();
+      }
+    });
+  });
+
+  // Delegated handler for closing any KPI panel via its close X button
+  document.addEventListener('click', (e) => {
+    const closeBtn = e.target.closest('[data-close-kpi]');
+    if (closeBtn) {
+      e.preventDefault();
+      const targetPanelId = closeBtn.getAttribute('data-close-kpi');
+      const targetPanel = document.getElementById(targetPanelId);
+      if (targetPanel) {
+        targetPanel.hidden = true;
+        const matchingKpi = kpiPanels.find(item => item.panel === targetPanel);
+        if (matchingKpi && matchingKpi.toggle) {
+          matchingKpi.toggle.setAttribute('aria-expanded', 'false');
+        }
+      }
+    }
+  });
+
   const resetCmoFilter = () => {
     if (zeroCommitmentToggle) {
       zeroCommitmentToggle.setAttribute('aria-expanded', 'false');
@@ -250,6 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const applyCmoFilter = (type) => {
+    closeAllKpiPanels();
     let matchedCount = 0;
 
     if (type === 'staff') {

@@ -296,11 +296,15 @@ def cmo_overview():
     rows = Db.cmo_summary(g.user.id)
     zero_commitment_staff = Db.cmo_zero_commitment_staff(g.user.id)
     zero_commitment_managers = Db.cmo_zero_commitment_managers(g.user.id)
+    all_staff = Db.cmo_all_staff(g.user.id)
+    all_staff_commitments = Db.cmo_all_staff_commitments(g.user.id)
     for r in rows:
         r["manager_commitments"] = Db.get_user_commitments(r["id"])
     return render_template("cmo.html", rows=rows,
                            zero_commitment_staff=zero_commitment_staff,
                            zero_commitment_managers=zero_commitment_managers,
+                           all_staff=all_staff,
+                           all_staff_commitments=all_staff_commitments,
                            today=date.today())
 
 

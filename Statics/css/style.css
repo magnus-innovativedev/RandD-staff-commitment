@@ -1747,6 +1747,220 @@ textarea.form-control {
   color: #064e3b;
 }
 
+/* --- Clickable KPI Card Styles --- */
+.stat-card.clickable-kpi {
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  position: relative;
+}
+
+.stat-card.clickable-kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+}
+
+.kpi-chevron {
+  margin-left: auto;
+  color: var(--text-muted);
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.stat-card.clickable-kpi:hover .kpi-chevron {
+  color: var(--navy);
+}
+
+.stat-card.clickable-kpi[aria-expanded="true"] .kpi-chevron {
+  transform: rotate(180deg);
+}
+
+.stat-card.kpi-managers[aria-expanded="true"] {
+  border-color: #5146c8;
+  box-shadow: 0 0 0 2px rgba(81, 70, 200, 0.25), 0 6px 16px rgba(81, 70, 200, 0.12);
+}
+
+.stat-card.kpi-staff[aria-expanded="true"] {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25), 0 6px 16px rgba(37, 99, 235, 0.12);
+}
+
+.stat-card.kpi-manager-commitments[aria-expanded="true"] {
+  border-color: #9333ea;
+  box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.25), 0 6px 16px rgba(147, 51, 234, 0.12);
+}
+
+.stat-card.kpi-tasks[aria-expanded="true"] {
+  border-color: #0e8a74;
+  box-shadow: 0 0 0 2px rgba(14, 138, 116, 0.25), 0 6px 16px rgba(14, 138, 116, 0.12);
+}
+
+/* --- KPI Details Panels --- */
+.kpi-details-panel {
+  margin-bottom: 24px;
+}
+
+.kpi-panel-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kpi-panel-title-group h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.kpi-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+}
+
+.kpi-detail-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.kpi-detail-card:hover {
+  border-color: var(--border-str);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.kpi-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.kpi-person-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.kpi-person-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--navy);
+  text-decoration: none;
+}
+
+.kpi-person-name:hover {
+  color: var(--accent);
+}
+
+.kpi-person-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  flex-wrap: wrap;
+}
+
+.kpi-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kpi-detail-metrics {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kpi-commitments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kpi-commit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  flex-wrap: wrap;
+}
+
+.kpi-commit-main {
+  flex: 1;
+  min-width: 220px;
+}
+
+.kpi-commit-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.kpi-commit-text {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--navy);
+}
+
+.kpi-commit-assigned-info {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.kpi-commit-desc {
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.kpi-commit-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.kpi-commit-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.staff-group-heading {
+  font-family: var(--font-head);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--navy);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .overview-secondary-strip {
   display: grid;
   grid-template-columns: 1fr 1fr;

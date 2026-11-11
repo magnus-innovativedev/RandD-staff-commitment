@@ -477,6 +477,57 @@ def cmo_zero_commitment_managers(cmo_id):
     )
 
 
+def cmo_all_staff(cmo_id):
+    """All staff members under managers belonging to this CMO."""
+    sql = text("""
+        SELECT m.id AS manager_id, m.name AS manager_name,
+               s.id AS staff_id, s.name AS staff_name, s.attendance_status,
+               COUNT(c.id) AS total_tasks,
+               COUNT(*) FILTER (WHERE c.status = 'completed') AS completed_tasks
+        FROM users m
+        JOIN users s ON s.manager_id = m.id AND s.role = 'staff'
+        LEFT JOIN commitments c ON c.owner_id = s.id
+        WHERE m.manager_id = :cid
+          AND m.role = 'manager'
+        GROUP BY m.id, m.name, s.id, s.name, s.attendance_status
+        ORDER BY m.name, s.name
+    """)
+    return _cached_query(
+        ("cmo_all_staff", cmo_id, date.today()),
+        lambda: [dict(row) for row in db.session.execute(
+            sql, {"cid": cmo_id}).mappings().all()],
+    )
+
+
+def cmo_all_staff_commitments(cmo_id):
+    """All commitments of staff members under managers belonging to this CMO."""
+    _ensure_overdue_status_current()
+    sql = text("""
+        SELECT c.id, c.owner_id, c.commitment_text, c.description,
+               c.start_date, c.end_date, c.priority, c.status,
+               c.completion_pct, c.reason, c.assigned_by_id,
+               c.completed_at,
+               s.name AS staff_name,
+               m.id AS manager_id, m.name AS manager_name,
+               assigner.name AS assigned_by_name
+        FROM commitments c
+        JOIN users s ON s.id = c.owner_id AND s.role = 'staff'
+        JOIN users m ON m.id = s.manager_id AND m.role = 'manager'
+        LEFT JOIN users assigner ON assigner.id = c.assigned_by_id
+        WHERE m.manager_id = :cid
+        ORDER BY c.end_date ASC, c.id DESC
+    """)
+    rows = db.session.execute(sql, {"cid": cmo_id}).mappings().all()
+    out = []
+    today_dt = date.today()
+    for row in rows:
+        d = dict(row)
+        d["is_overdue"] = (d["end_date"] < today_dt and d["status"] != "completed")
+        d["is_today"] = (d["start_date"] <= today_dt <= d["end_date"])
+        out.append(d)
+    return out
+
+
 # ---------------- DAILY JOBS ----------------
 def mark_overdue_as_missed():
     db.session.execute(text("""

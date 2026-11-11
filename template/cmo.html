@@ -29,35 +29,39 @@
 
 <div class="cmo-overview-header">
   
-  <!-- Primary KPIs Grid -->
+  <!-- Primary KPIs Grid (Interactive to show details) -->
   <div class="stats-grid kpi-grid">
-    <div class="stat-card kpi-managers">
+    <div class="stat-card kpi-managers clickable-kpi" id="kpiManagersToggle" role="button" tabindex="0" aria-expanded="false" aria-controls="kpiDetailsManagers" title="Click to view Managers details">
       <div class="stat-icon purple"><i data-lucide="building-2" class="icon"></i></div>
       <div class="stat-content">
         <div class="stat-value">{{ total_teams }}</div>
         <div class="stat-label">Managers</div>
       </div>
+      <i data-lucide="chevron-down" class="kpi-chevron"></i>
     </div>
-    <div class="stat-card kpi-staff">
+    <div class="stat-card kpi-staff clickable-kpi" id="kpiStaffToggle" role="button" tabindex="0" aria-expanded="false" aria-controls="kpiDetailsStaff" title="Click to view all Staff details">
       <div class="stat-icon blue"><i data-lucide="users" class="icon"></i></div>
       <div class="stat-content">
         <div class="stat-value">{{ total_staff }}</div>
         <div class="stat-label">Total Staff</div>
       </div>
+      <i data-lucide="chevron-down" class="kpi-chevron"></i>
     </div>
-    <div class="stat-card kpi-manager-commitments">
+    <div class="stat-card kpi-manager-commitments clickable-kpi" id="kpiManagerCommitmentsToggle" role="button" tabindex="0" aria-expanded="false" aria-controls="kpiDetailsManagerCommitments" title="Click to view Manager Commitments">
       <div class="stat-icon purple"><i data-lucide="clipboard-check" class="icon"></i></div>
       <div class="stat-content">
         <div class="stat-value">{{ total_manager_commits }}</div>
         <div class="stat-label">Manager Commitments</div>
       </div>
+      <i data-lucide="chevron-down" class="kpi-chevron"></i>
     </div>
-    <div class="stat-card kpi-tasks">
+    <div class="stat-card kpi-tasks clickable-kpi" id="kpiTasksToggle" role="button" tabindex="0" aria-expanded="false" aria-controls="kpiDetailsStaffTasks" title="Click to view Staff Tasks details">
       <div class="stat-icon green"><i data-lucide="check-square" class="icon"></i></div>
       <div class="stat-content">
         <div class="stat-value">{{ total_commits }}</div>
         <div class="stat-label">Staff Tasks ({{ total_done }} Done)</div>
       </div>
+      <i data-lucide="chevron-down" class="kpi-chevron"></i>
     </div>
   </div>
 
@@ -175,6 +179,244 @@
     </div>
     {% else %}
     <p class="text-muted">All managers have at least one commitment covering today.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- KPI 1 DETAILS: ALL MANAGERS -->
+<div class="card kpi-details-panel" id="kpiDetailsManagers" hidden>
+  <div class="card-header">
+    <div class="kpi-panel-title-group">
+      <i data-lucide="building-2" class="icon text-purple"></i>
+      <h2>All Managers Overview ({{ total_teams }})</h2>
+    </div>
+    <div class="card-actions">
+      <button type="button" class="btn btn-ghost btn-xs btn-icon close-kpi-btn" data-close-kpi="kpiDetailsManagers" aria-label="Close">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="kpi-items-grid">
+      {% for r in rows %}
+      <div class="kpi-detail-card">
+        <div class="kpi-detail-head">
+          <div class="kpi-person-info">
+            <span class="avatar-mini">{{ r.manager[0].upper() }}</span>
+            <div>
+              <a href="{{ url_for('user_view', uid=r.id) }}" class="kpi-person-name">{{ r.manager }}</a>
+              <div class="kpi-person-sub">
+                {% if r.manager_attendance == 'present' %}
+                  <span class="badge att-present"><i data-lucide="check-circle-2"></i> Present</span>
+                {% elif r.manager_attendance == 'wfh' %}
+                  <span class="badge att-wfh"><i data-lucide="home"></i> WFH</span>
+                {% elif r.manager_attendance == 'absent' %}
+                  <span class="badge att-absent"><i data-lucide="x-circle"></i> Absent</span>
+                {% else %}
+                  <span class="badge att-none">Not marked</span>
+                {% endif %}
+                <span class="meta-dot">&middot;</span>
+                <span>{{ r.team_size }} staff</span>
+              </div>
+            </div>
+          </div>
+          <div class="kpi-detail-actions">
+            <button type="button" class="btn btn-primary btn-xs" data-assign-task-btn data-user-id="{{ r.id }}" data-user-name="{{ r.manager }}">
+              <i data-lucide="plus-circle" class="icon-sm"></i> Assign Task
+            </button>
+            <a href="{{ url_for('team', manager_id=r.id) }}" class="btn btn-ghost btn-xs">
+              View Team &rarr;
+            </a>
+          </div>
+        </div>
+        <div class="kpi-detail-metrics">
+          <div class="m-stat-box"><span class="m-stat-val">{{ r.manager_commitments | length }}</span><span class="m-stat-lbl">Personal Commits</span></div>
+          <div class="m-stat-box"><span class="m-stat-val">{{ r.total }}</span><span class="m-stat-lbl">Staff Tasks</span></div>
+          <div class="m-stat-box"><span class="m-stat-val text-success">{{ r.completed }}</span><span class="m-stat-lbl">Done</span></div>
+          <div class="m-stat-box"><span class="m-stat-val {% if r.missed > 0 %}text-danger{% endif %}">{{ r.missed }}</span><span class="m-stat-lbl">Missed</span></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- KPI 2 DETAILS: ALL STAFF -->
+<div class="card kpi-details-panel" id="kpiDetailsStaff" hidden>
+  <div class="card-header">
+    <div class="kpi-panel-title-group">
+      <i data-lucide="users" class="icon text-blue"></i>
+      <h2>All Staff Directory ({{ total_staff }})</h2>
+    </div>
+    <div class="card-actions">
+      <button type="button" class="btn btn-ghost btn-xs btn-icon close-kpi-btn" data-close-kpi="kpiDetailsStaff" aria-label="Close">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    {% if all_staff %}
+    {% for manager_name, staff_list in all_staff | groupby('manager_name') %}
+    <div class="staff-group-section mb-4">
+      <h3 class="staff-group-heading"><i data-lucide="building-2" class="icon-xs"></i> {{ manager_name }}'s Team ({{ staff_list | length }} staff)</h3>
+      <div class="kpi-items-grid">
+        {% for s in staff_list %}
+        <div class="kpi-detail-card">
+          <div class="kpi-detail-head">
+            <div class="kpi-person-info">
+              <span class="avatar-mini">{{ s.staff_name[0].upper() }}</span>
+              <div>
+                <a href="{{ url_for('user_view', uid=s.staff_id) }}" class="kpi-person-name">{{ s.staff_name }}</a>
+                <div class="kpi-person-sub">
+                  {% if s.attendance_status == 'present' %}
+                    <span class="badge att-present"><i data-lucide="check-circle-2"></i> Present</span>
+                  {% elif s.attendance_status == 'wfh' %}
+                    <span class="badge att-wfh"><i data-lucide="home"></i> WFH</span>
+                  {% elif s.attendance_status == 'absent' %}
+                    <span class="badge att-absent"><i data-lucide="x-circle"></i> Absent</span>
+                  {% else %}
+                    <span class="badge att-none">Not marked</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-xs" data-assign-task-btn data-user-id="{{ s.staff_id }}" data-user-name="{{ s.staff_name }}">
+              <i data-lucide="plus-circle" class="icon-sm"></i> Assign Task
+            </button>
+          </div>
+          <div class="kpi-detail-metrics">
+            <div class="m-stat-box"><span class="m-stat-val">{{ s.total_tasks }}</span><span class="m-stat-lbl">Tasks</span></div>
+            <div class="m-stat-box"><span class="m-stat-val text-success">{{ s.completed_tasks }}</span><span class="m-stat-lbl">Completed</span></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="text-muted">No staff members found under managers yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- KPI 3 DETAILS: MANAGER COMMITMENTS -->
+<div class="card kpi-details-panel" id="kpiDetailsManagerCommitments" hidden>
+  <div class="card-header">
+    <div class="kpi-panel-title-group">
+      <i data-lucide="clipboard-check" class="icon text-purple"></i>
+      <h2>All Manager Commitments ({{ total_manager_commits }})</h2>
+    </div>
+    <div class="card-actions">
+      <button type="button" class="btn btn-ghost btn-xs btn-icon close-kpi-btn" data-close-kpi="kpiDetailsManagerCommitments" aria-label="Close">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    {% if total_manager_commits > 0 %}
+    {% for r in rows if r.manager_commitments %}
+    <div class="manager-commitments-group mb-4">
+      <h3 class="staff-group-heading"><i data-lucide="user-check" class="icon-xs"></i> {{ r.manager }}'s Commitments ({{ r.manager_commitments | length }})</h3>
+      <div class="kpi-commitments-list">
+        {% for c in r.manager_commitments %}
+        <div class="kpi-commit-item">
+          <div class="kpi-commit-main">
+            <div class="kpi-commit-title-row">
+              <span class="kpi-commit-text">{{ c.commitment_text }}</span>
+              <span class="badge badge-priority-{{ c.priority }}">{{ c.priority | upper }}</span>
+              <span class="badge badge-status-{{ c.status }}">{{ c.status | replace('_', ' ') | title }}</span>
+              {% if c.assigned_by_id %}
+              <span class="meta-chip-assigned" title="Assigned task">
+                <i data-lucide="user-plus" class="icon-xs"></i> Assigned
+              </span>
+              {% endif %}
+            </div>
+            {% if c.description %}
+            <div class="kpi-commit-desc text-muted">{{ c.description }}</div>
+            {% endif %}
+            <div class="kpi-commit-meta">
+              <span><i data-lucide="calendar" class="icon-xs"></i> {{ c.start_date.strftime('%d %b %Y') }} &ndash; {{ c.end_date.strftime('%d %b %Y') }}</span>
+              {% if c.end_date < today and c.status != 'completed' %}
+              <span class="text-danger font-semibold"><i data-lucide="alert-triangle" class="icon-xs"></i> Overdue</span>
+              {% elif c.start_date <= today and c.end_date >= today %}
+              <span class="text-amber font-semibold"><i data-lucide="clock" class="icon-xs"></i> Due Today</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="kpi-commit-progress">
+            <span class="progress-pct">{{ c.completion_pct }}%</span>
+            <div class="progress-bar-bg" style="width: 90px;">
+              <div class="progress-bar-fill" style="width: {{ c.completion_pct }}%;"></div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="text-muted">No manager commitments created yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- KPI 4 DETAILS: STAFF TASKS -->
+<div class="card kpi-details-panel" id="kpiDetailsStaffTasks" hidden>
+  <div class="card-header">
+    <div class="kpi-panel-title-group">
+      <i data-lucide="check-square" class="icon text-teal"></i>
+      <h2>All Staff Tasks ({{ total_commits }} Total, {{ total_done }} Done)</h2>
+    </div>
+    <div class="card-actions">
+      <button type="button" class="btn btn-ghost btn-xs btn-icon close-kpi-btn" data-close-kpi="kpiDetailsStaffTasks" aria-label="Close">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    {% if all_staff_commitments %}
+    <div class="kpi-commitments-list">
+      {% for c in all_staff_commitments %}
+      <div class="kpi-commit-item">
+        <div class="kpi-commit-main">
+          <div class="kpi-commit-title-row">
+            <span class="kpi-commit-text">{{ c.commitment_text }}</span>
+            <span class="badge badge-priority-{{ c.priority }}">{{ c.priority | upper }}</span>
+            <span class="badge badge-status-{{ c.status }}">{{ c.status | replace('_', ' ') | title }}</span>
+          </div>
+          <div class="kpi-commit-assigned-info">
+            <span class="text-muted">Assigned to:</span>
+            <strong>{{ c.staff_name }}</strong>
+            <span class="meta-dot">&middot;</span>
+            <span class="text-muted">Team: {{ c.manager_name }}</span>
+            {% if c.assigned_by_name %}
+            <span class="meta-dot">&middot;</span>
+            <span class="text-muted">Assigned by: {{ c.assigned_by_name }}</span>
+            {% endif %}
+          </div>
+          {% if c.description %}
+          <div class="kpi-commit-desc text-muted">{{ c.description }}</div>
+          {% endif %}
+          <div class="kpi-commit-meta">
+            <span><i data-lucide="calendar" class="icon-xs"></i> {{ c.start_date.strftime('%d %b %Y') }} &ndash; {{ c.end_date.strftime('%d %b %Y') }}</span>
+            {% if c.is_overdue %}
+            <span class="text-danger font-semibold"><i data-lucide="alert-triangle" class="icon-xs"></i> Overdue</span>
+            {% elif c.is_today %}
+            <span class="text-amber font-semibold"><i data-lucide="clock" class="icon-xs"></i> Due Today</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="kpi-commit-progress">
+          <span class="progress-pct">{{ c.completion_pct }}%</span>
+          <div class="progress-bar-bg" style="width: 90px;">
+            <div class="progress-bar-fill" style="width: {{ c.completion_pct }}%;"></div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted">No staff tasks registered yet.</p>
     {% endif %}
   </div>
 </div>
