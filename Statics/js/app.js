@@ -225,7 +225,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const cmoEmptyResetBtn = document.getElementById('cmoEmptyResetBtn');
   const cmoFilterEmptyState = document.getElementById('cmoFilterEmptyState');
   const cmoManagerCountBadge = document.getElementById('cmoManagerCountBadge');
+  const cmoManagerSection = document.getElementById('cmoManagerSection');
   const totalManagerCount = managerCards.length;
+
+  const setCmoManagerListVisibility = (visible) => {
+    if (cmoManagerSection) cmoManagerSection.hidden = !visible;
+    if (cmoFilterEmptyState && !visible) {
+      cmoFilterEmptyState.hidden = true;
+    }
+  };
 
   /* ---------- CMO Top KPI Cards Details Toggles ---------- */
   const kpiPanels = [
@@ -257,8 +265,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isExpanded) {
         toggle.setAttribute('aria-expanded', 'false');
         panel.hidden = true;
+        setCmoManagerListVisibility(true);
       } else {
         closeAllOverviewPanels();
+        setCmoManagerListVisibility(false);
 
         toggle.setAttribute('aria-expanded', 'true');
         panel.hidden = false;
@@ -288,6 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (matchingKpi && matchingKpi.toggle) {
           matchingKpi.toggle.setAttribute('aria-expanded', 'false');
         }
+        setCmoManagerListVisibility(true);
       }
     }
   });
@@ -308,6 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
     managerCards.forEach(card => {
       card.style.display = '';
     });
+    setCmoManagerListVisibility(true);
 
     if (cmoActiveFilterStatus) cmoActiveFilterStatus.hidden = true;
     if (cmoFilterEmptyState) cmoFilterEmptyState.hidden = true;

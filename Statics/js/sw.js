@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stafftrack-v4';
+const CACHE_NAME = 'stafftrack-v5';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
