@@ -63,6 +63,14 @@
       </div>
       <i data-lucide="chevron-down" class="kpi-chevron"></i>
     </div>
+    <div class="stat-card kpi-missed clickable-kpi" id="kpiMissedToggle" role="button" tabindex="0" aria-expanded="false" aria-controls="kpiDetailsMissed" title="Click to view missed staff commitments">
+      <div class="stat-icon red"><i data-lucide="circle-alert" class="icon"></i></div>
+      <div class="stat-content">
+        <div class="stat-value">{{ total_missed }}</div>
+        <div class="stat-label">Missed Staff Tasks</div>
+      </div>
+      <i data-lucide="chevron-down" class="kpi-chevron"></i>
+    </div>
   </div>
 
   <!-- Operational Strip: Today's Attendance & Zero Commitment Alerts -->
@@ -419,6 +427,62 @@
   </div>
 </div>
 
+<!-- KPI 5 DETAILS: MISSED STAFF TASKS -->
+<div class="card kpi-details-panel" id="kpiDetailsMissed" hidden>
+  <div class="card-header">
+    <div class="kpi-panel-title-group">
+      <i data-lucide="circle-alert" class="icon text-danger"></i>
+      <h2>Missed Staff Tasks ({{ total_missed }})</h2>
+    </div>
+    <div class="card-actions">
+      <button type="button" class="btn btn-ghost btn-xs btn-icon close-kpi-btn" data-close-kpi="kpiDetailsMissed" aria-label="Close">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    {% set missed_staff_commitments = all_staff_commitments | selectattr('status', 'equalto', 'missed') | list %}
+    {% if missed_staff_commitments %}
+    <div class="kpi-commitments-list">
+      {% for c in missed_staff_commitments %}
+      <div class="kpi-commit-item">
+        <div class="kpi-commit-main">
+          <div class="kpi-commit-title-row">
+            <span class="kpi-commit-text">{{ c.commitment_text }}</span>
+            <span class="badge badge-priority-{{ c.priority }}">{{ c.priority | upper }}</span>
+            <span class="badge badge-status-{{ c.status }}">{{ c.status | replace('_', ' ') | title }}</span>
+          </div>
+          <div class="kpi-commit-assigned-info">
+            <span class="text-muted">Assigned to:</span>
+            <strong>{{ c.staff_name }}</strong>
+            <span class="meta-dot">&middot;</span>
+            <span class="text-muted">Team: {{ c.manager_name }}</span>
+          </div>
+          {% if c.description %}
+          <div class="kpi-commit-desc text-muted">{{ c.description }}</div>
+          {% endif %}
+          {% if c.reason %}
+          <div class="kpi-commit-desc text-muted"><strong>Reason:</strong> {{ c.reason }}</div>
+          {% endif %}
+          <div class="kpi-commit-meta">
+            <span><i data-lucide="calendar" class="icon-xs"></i> {{ c.start_date.strftime('%d %b %Y') }} &ndash; {{ c.end_date.strftime('%d %b %Y') }}</span>
+          </div>
+        </div>
+        <div class="kpi-commit-progress">
+          <span class="progress-pct">{{ c.completion_pct }}%</span>
+          <div class="progress-bar-bg" style="width: 90px;">
+            <div class="progress-bar-fill" style="width: {{ c.completion_pct }}%;"></div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted">No missed staff tasks.</p>
+    {% endif %}
+  </div>
+</div>
+
 <div id="cmoManagerSection">
 <div class="cmo-section-heading-row">
   <div class="cmo-heading-left">
@@ -485,19 +549,6 @@
         </div>
       </div>
 
-      <div class="manager-card-actions">
-        <button type="button" class="btn btn-primary btn-sm" data-assign-task-btn data-user-id="{{ r.id }}" data-user-name="{{ r.manager }}" onclick="event.stopPropagation(); window.openAssignTaskModal('{{ r.id }}', '{{ r.manager | e }}');" title="Assign task to {{ r.manager }}">
-          <i data-lucide="plus-circle" class="icon-sm"></i> Assign Task
-        </button>
-        <a href="{{ url_for('user_view', uid=r.id) }}" class="btn btn-ghost btn-sm" title="View &amp; manage {{ r.manager }}'s personal commitments">
-          <i data-lucide="clipboard-list" class="icon-sm"></i> Commitments ({{ r.manager_commitments | length }})
-        </a>
-        <i data-lucide="chevron-right" class="icon m-chevron"></i>
-      </div>
-    </div>
-
-    <!-- Card Body: Staff Team Performance Metrics -->
-    <div class="manager-card-body">
       <div class="manager-stats-grid">
         <div class="m-stat-box">
           <span class="m-stat-val">{{ r.team_size }}</span>
@@ -521,6 +572,16 @@
           <span class="m-stat-lbl">Zero Today</span>
         </div>
         {% endif %}
+      </div>
+
+      <div class="manager-card-actions">
+        <button type="button" class="btn btn-primary btn-sm" data-assign-task-btn data-user-id="{{ r.id }}" data-user-name="{{ r.manager }}" onclick="event.stopPropagation(); window.openAssignTaskModal('{{ r.id }}', '{{ r.manager | e }}');" title="Assign task to {{ r.manager }}">
+          <i data-lucide="plus-circle" class="icon-sm"></i> Assign Task
+        </button>
+        <a href="{{ url_for('user_view', uid=r.id) }}" class="btn btn-ghost btn-sm" title="View &amp; manage {{ r.manager }}'s personal commitments">
+          <i data-lucide="clipboard-list" class="icon-sm"></i> Commitments ({{ r.manager_commitments | length }})
+        </a>
+        <i data-lucide="chevron-right" class="icon m-chevron"></i>
       </div>
     </div>
 

@@ -1747,6 +1747,21 @@ textarea.form-control {
   color: #064e3b;
 }
 
+.stat-card.kpi-missed {
+  background: linear-gradient(145deg, #ffffff 0%, #fff5f5 100%);
+  border: 1px solid rgba(220, 38, 38, 0.22);
+}
+.stat-card.kpi-missed .stat-icon {
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+}
+.stat-card.kpi-missed .stat-value {
+  color: #991b1b;
+}
+
 /* --- Clickable KPI Card Styles --- */
 .stat-card.clickable-kpi {
   cursor: pointer;
@@ -1795,6 +1810,11 @@ textarea.form-control {
 .stat-card.kpi-tasks[aria-expanded="true"] {
   border-color: #0e8a74;
   box-shadow: 0 0 0 2px rgba(14, 138, 116, 0.25), 0 6px 16px rgba(14, 138, 116, 0.12);
+}
+
+.stat-card.kpi-missed[aria-expanded="true"] {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2), 0 6px 16px rgba(220, 38, 38, 0.1);
 }
 
 /* --- KPI Details Panels --- */
@@ -2373,8 +2393,11 @@ textarea.form-control {
 .manager-stats-grid {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex: 1;
   gap: 14px;
   flex-wrap: wrap;
+  min-width: 280px;
 }
 
 .m-stat-box {

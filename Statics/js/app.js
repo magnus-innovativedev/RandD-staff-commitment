@@ -240,7 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
     { toggle: document.getElementById('kpiManagersToggle'), panel: document.getElementById('kpiDetailsManagers') },
     { toggle: document.getElementById('kpiStaffToggle'), panel: document.getElementById('kpiDetailsStaff') },
     { toggle: document.getElementById('kpiManagerCommitmentsToggle'), panel: document.getElementById('kpiDetailsManagerCommitments') },
-    { toggle: document.getElementById('kpiTasksToggle'), panel: document.getElementById('kpiDetailsStaffTasks') }
+    { toggle: document.getElementById('kpiTasksToggle'), panel: document.getElementById('kpiDetailsStaffTasks') },
+    { toggle: document.getElementById('kpiMissedToggle'), panel: document.getElementById('kpiDetailsMissed') }
   ];
 
   const closeAllKpiPanels = () => {
