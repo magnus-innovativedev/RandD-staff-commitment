@@ -66,21 +66,18 @@
       <div class="subordinate-info-row">
         <i data-lucide="calendar-check" class="icon"></i>
         <span>Attendance:</span>
-        {% if u.attendance_status == 'present' %}
+        {% set attendance_status = u.attendance_status | default('absent') %}
+        {% if attendance_status == 'present' %}
           <span class="badge att-present" style="padding: 2px 8px; font-size: .62rem;">
             <i data-lucide="check-circle" style="width: 11px; height: 11px;"></i> Present
           </span>
-        {% elif u.attendance_status == 'wfh' %}
+        {% elif attendance_status == 'wfh' %}
           <span class="badge att-wfh" style="padding: 2px 8px; font-size: .62rem;">
             <i data-lucide="home" style="width: 11px; height: 11px;"></i> WFH
           </span>
-        {% elif u.attendance_status == 'absent' %}
+        {% else %}
           <span class="badge att-absent" style="padding: 2px 8px; font-size: .62rem;">
             <i data-lucide="x-circle" style="width: 11px; height: 11px;"></i> Absent
-          </span>
-        {% else %}
-          <span class="badge att-none" style="padding: 2px 8px; font-size: .62rem;">
-            Not Marked
           </span>
         {% endif %}
       </div>

@@ -106,14 +106,13 @@
             </div>
           </td>
           <td class="col-center">
-            {% if r.attendance_status == 'present' %}
+            {% set attendance_status = r.attendance_status | default('absent') %}
+          {% if attendance_status == 'present' %}
             <span class="badge att-present"><i data-lucide="check-circle-2"></i>Present</span>
-            {% elif r.attendance_status == 'wfh' %}
+            {% elif attendance_status == 'wfh' %}
             <span class="badge att-wfh"><i data-lucide="home"></i>WFH</span>
-            {% elif r.attendance_status == 'absent' %}
-            <span class="badge att-absent"><i data-lucide="x-circle"></i>Absent</span>
             {% else %}
-            <span class="badge att-none"><i data-lucide="minus-circle"></i>Not Marked</span>
+            <span class="badge att-absent"><i data-lucide="x-circle"></i>Absent</span>
             {% endif %}
           </td>
           <td class="col-center"><strong>{{ r.total }}</strong></td>

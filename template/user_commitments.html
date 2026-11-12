@@ -11,14 +11,13 @@
 {% block breadcrumb %}
 <span class="breadcrumb">
   {{ person.role | title }} &middot;
-  {% if person.attendance_status == 'present' %}
+  {% set attendance_status = person.attendance_status | default('absent') %}
+  {% if attendance_status == 'present' %}
   <span class="banner-status present"><i data-lucide="check-circle-2"></i> Present today</span>
-  {% elif person.attendance_status == 'wfh' %}
+  {% elif attendance_status == 'wfh' %}
   <span class="banner-status wfh"><i data-lucide="home"></i> WFH today</span>
-  {% elif person.attendance_status == 'absent' %}
-  <span class="banner-status absent"><i data-lucide="x-circle"></i> Absent today</span>
   {% else %}
-  <span class="banner-status none"><i data-lucide="minus-circle"></i> Attendance not marked</span>
+  <span class="banner-status absent"><i data-lucide="x-circle"></i> Absent today</span>
   {% endif %}
   {% if g.user.role == 'cmo' %}
   &middot; <a href="{{ url_for('cmo_overview') }}">Overview</a>

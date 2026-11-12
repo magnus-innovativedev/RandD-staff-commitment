@@ -15,14 +15,13 @@
       <div class="banner-title">Good day, {{ g.user.name.split()[0] }}</div>
       <div class="banner-sub">
         {{ today.strftime('%A, %d %B %Y') }}
-        {% if g.user.attendance_status == 'present' %}
+        {% set attendance_status = g.user.attendance_status | default('absent') %}
+        {% if attendance_status == 'present' %}
           &nbsp;·&nbsp;<span class="banner-status present"><i data-lucide="check-circle-2" class="icon"></i> Present today</span>
-        {% elif g.user.attendance_status == 'wfh' %}
+        {% elif attendance_status == 'wfh' %}
           &nbsp;·&nbsp;<span class="banner-status wfh"><i data-lucide="home" class="icon"></i> WFH today</span>
-        {% elif g.user.attendance_status == 'absent' %}
-          &nbsp;·&nbsp;<span class="banner-status absent"><i data-lucide="x-circle" class="icon"></i> Absent today</span>
         {% else %}
-          &nbsp;·&nbsp;<span class="banner-status none">Not marked yet</span>
+          &nbsp;·&nbsp;<span class="banner-status absent"><i data-lucide="x-circle" class="icon"></i> Absent today</span>
         {% endif %}
       </div>
     </div>
@@ -30,18 +29,16 @@
     <!-- Professional Status Dropdown -->
     <div class="attendance-dropdown-wrap" id="attendanceDropdownWrap">
       <button type="button" class="attendance-pill-btn" id="attendancePillBtn" onclick="toggleAttendanceDropdown(event)">
-        {% if g.user.attendance_status == 'present' %}
+        {% set attendance_status = g.user.attendance_status | default('absent') %}
+        {% if attendance_status == 'present' %}
           <span class="status-dot dot-present"></span>
           <span>Present</span>
-        {% elif g.user.attendance_status == 'wfh' %}
+        {% elif attendance_status == 'wfh' %}
           <span class="status-dot dot-wfh"></span>
           <span>Work From Home</span>
-        {% elif g.user.attendance_status == 'absent' %}
+        {% else %}
           <span class="status-dot dot-absent"></span>
           <span>Absent</span>
-        {% else %}
-          <span class="status-dot dot-none"></span>
-          <span>Set Attendance</span>
         {% endif %}
         <i data-lucide="chevron-down" class="chevron-icon"></i>
       </button>
@@ -53,7 +50,7 @@
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="attendance_status" id="attendanceStatusInput" value="">
 
-          <button type="button" class="attendance-opt-btn {% if g.user.attendance_status == 'present' %}active{% endif %}" onclick="selectAttendance('present')">
+          <button type="button" class="attendance-opt-btn {% if (g.user.attendance_status | default('absent')) == 'present' %}active{% endif %}" onclick="selectAttendance('present')">
             <div class="attendance-opt-icon opt-present">
               <i data-lucide="check-circle-2" class="icon"></i>
             </div>
@@ -64,7 +61,7 @@
             <i data-lucide="check" class="icon attendance-check"></i>
           </button>
 
-          <button type="button" class="attendance-opt-btn {% if g.user.attendance_status == 'wfh' %}active{% endif %}" onclick="selectAttendance('wfh')">
+          <button type="button" class="attendance-opt-btn {% if (g.user.attendance_status | default('absent')) == 'wfh' %}active{% endif %}" onclick="selectAttendance('wfh')">
             <div class="attendance-opt-icon opt-wfh">
               <i data-lucide="home" class="icon"></i>
             </div>
@@ -75,7 +72,7 @@
             <i data-lucide="check" class="icon attendance-check"></i>
           </button>
 
-          <button type="button" class="attendance-opt-btn {% if g.user.attendance_status == 'absent' %}active{% endif %}" onclick="selectAttendance('absent')">
+          <button type="button" class="attendance-opt-btn {% if (g.user.attendance_status | default('absent')) == 'absent' %}active{% endif %}" onclick="selectAttendance('absent')">
             <div class="attendance-opt-icon opt-absent">
               <i data-lucide="x-circle" class="icon"></i>
             </div>

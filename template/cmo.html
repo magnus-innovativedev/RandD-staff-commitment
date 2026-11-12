@@ -206,14 +206,13 @@
             <div>
               <a href="{{ url_for('user_view', uid=r.id) }}" class="kpi-person-name">{{ r.manager }}</a>
               <div class="kpi-person-sub">
-                {% if r.manager_attendance == 'present' %}
+                {% set attendance_status = r.manager_attendance | default('absent') %}
+                {% if attendance_status == 'present' %}
                   <span class="badge att-present"><i data-lucide="check-circle-2"></i> Present</span>
-                {% elif r.manager_attendance == 'wfh' %}
+                {% elif attendance_status == 'wfh' %}
                   <span class="badge att-wfh"><i data-lucide="home"></i> WFH</span>
-                {% elif r.manager_attendance == 'absent' %}
-                  <span class="badge att-absent"><i data-lucide="x-circle"></i> Absent</span>
                 {% else %}
-                  <span class="badge att-none">Not marked</span>
+                  <span class="badge att-absent"><i data-lucide="x-circle"></i> Absent</span>
                 {% endif %}
                 <span class="meta-dot">&middot;</span>
                 <span>{{ r.team_size }} staff</span>
@@ -268,14 +267,13 @@
               <div>
                 <a href="{{ url_for('user_view', uid=s.staff_id) }}" class="kpi-person-name">{{ s.staff_name }}</a>
                 <div class="kpi-person-sub">
-                  {% if s.attendance_status == 'present' %}
+                  {% set attendance_status = s.attendance_status | default('absent') %}
+                  {% if attendance_status == 'present' %}
                     <span class="badge att-present"><i data-lucide="check-circle-2"></i> Present</span>
-                  {% elif s.attendance_status == 'wfh' %}
+                  {% elif attendance_status == 'wfh' %}
                     <span class="badge att-wfh"><i data-lucide="home"></i> WFH</span>
-                  {% elif s.attendance_status == 'absent' %}
-                    <span class="badge att-absent"><i data-lucide="x-circle"></i> Absent</span>
                   {% else %}
-                    <span class="badge att-none">Not marked</span>
+                    <span class="badge att-absent"><i data-lucide="x-circle"></i> Absent</span>
                   {% endif %}
                 </div>
               </div>
@@ -467,14 +465,13 @@
         <div class="m-info">
           <div class="m-name-row">
             <span class="m-name">{{ r.manager }}</span>
-            {% if r.manager_attendance == 'present' %}
+            {% set attendance_status = r.manager_attendance | default('absent') %}
+            {% if attendance_status == 'present' %}
               <span class="badge att-present"><i data-lucide="check-circle-2"></i> Present</span>
-            {% elif r.manager_attendance == 'wfh' %}
+            {% elif attendance_status == 'wfh' %}
               <span class="badge att-wfh"><i data-lucide="home"></i> WFH</span>
-            {% elif r.manager_attendance == 'absent' %}
-              <span class="badge att-absent"><i data-lucide="x-circle"></i> Absent</span>
             {% else %}
-              <span class="badge att-none"><i data-lucide="minus-circle"></i> Not marked</span>
+              <span class="badge att-absent"><i data-lucide="x-circle"></i> Absent</span>
             {% endif %}
           </div>
           <div class="m-sub">

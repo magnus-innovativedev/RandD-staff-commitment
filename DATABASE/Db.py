@@ -134,9 +134,9 @@ def ensure_default_developer(name, email, password):
 
 
 def set_attendance(user_id, status):
-    """status: 'present', 'absent', 'wfh' or None (not marked)."""
+    """status: 'present', 'absent', or 'wfh'; empty values default to absent."""
     user = get_user_by_id(user_id)
-    user.attendance_status = status
+    user.attendance_status = status or 'absent'
     _commit()
 
 
@@ -403,7 +403,7 @@ def cmo_summary(cmo_id):
                COUNT(*) FILTER (WHERE c.status = 'missed') AS missed,
                COUNT(DISTINCT s.id) FILTER (
                    WHERE s.role = 'staff'
-                     AND s.attendance_status IN ('present', 'wfh')
+                     AND COALESCE(s.attendance_status, 'absent') IN ('present', 'wfh')
                      AND NOT EXISTS (
                          SELECT 1
                          FROM commitments today_c
@@ -413,9 +413,9 @@ def cmo_summary(cmo_id):
                      )
                ) AS no_commitment_today,
                ROUND(AVG(c.completion_pct), 1) AS avg_completion_pct,
-               COUNT(DISTINCT s.id) FILTER (WHERE s.attendance_status = 'present') AS present,
-               COUNT(DISTINCT s.id) FILTER (WHERE s.attendance_status = 'wfh') AS wfh,
-               COUNT(DISTINCT s.id) FILTER (WHERE s.attendance_status = 'absent') AS absent
+               COUNT(DISTINCT s.id) FILTER (WHERE COALESCE(s.attendance_status, 'absent') = 'present') AS present,
+               COUNT(DISTINCT s.id) FILTER (WHERE COALESCE(s.attendance_status, 'absent') = 'wfh') AS wfh,
+               COUNT(DISTINCT s.id) FILTER (WHERE COALESCE(s.attendance_status, 'absent') = 'absent') AS absent
         FROM users m
         LEFT JOIN users s       ON s.manager_id = m.id
         LEFT JOIN commitments c ON c.owner_id   = s.id
@@ -439,7 +439,7 @@ def cmo_zero_commitment_staff(cmo_id):
         JOIN users s ON s.manager_id = m.id AND s.role = 'staff'
         WHERE m.manager_id = :cid
           AND m.role = 'manager'
-          AND s.attendance_status IN ('present', 'wfh')
+          AND COALESCE(s.attendance_status, 'absent') IN ('present', 'wfh')
           AND NOT EXISTS (
               SELECT 1
               FROM commitments c
@@ -463,7 +463,7 @@ def cmo_zero_commitment_managers(cmo_id):
         FROM users m
         WHERE m.manager_id = :cid
           AND m.role = 'manager'
-          AND m.attendance_status IN ('present', 'wfh')
+          AND COALESCE(m.attendance_status, 'absent') IN ('present', 'wfh')
           AND NOT EXISTS (
               SELECT 1
               FROM commitments c
