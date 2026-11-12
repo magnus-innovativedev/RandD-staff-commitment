@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const setFiltered = (filtered) => {
       let count = 0;
       tableRows.forEach(row => {
-        const visible = !filtered || row.dataset.zeroCommitmentToday === 'true';
+        const visible = !filtered || (row.dataset.zeroCommitmentToday === 'true' && row.dataset.currentlyPresent === 'true');
         row.hidden = !visible;
         if (visible) count += 1;
       });

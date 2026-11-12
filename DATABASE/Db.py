@@ -403,6 +403,7 @@ def cmo_summary(cmo_id):
                COUNT(*) FILTER (WHERE c.status = 'missed') AS missed,
                COUNT(DISTINCT s.id) FILTER (
                    WHERE s.role = 'staff'
+                     AND s.attendance_status IN ('present', 'wfh')
                      AND NOT EXISTS (
                          SELECT 1
                          FROM commitments today_c
@@ -438,6 +439,7 @@ def cmo_zero_commitment_staff(cmo_id):
         JOIN users s ON s.manager_id = m.id AND s.role = 'staff'
         WHERE m.manager_id = :cid
           AND m.role = 'manager'
+          AND s.attendance_status IN ('present', 'wfh')
           AND NOT EXISTS (
               SELECT 1
               FROM commitments c
@@ -461,6 +463,7 @@ def cmo_zero_commitment_managers(cmo_id):
         FROM users m
         WHERE m.manager_id = :cid
           AND m.role = 'manager'
+          AND m.attendance_status IN ('present', 'wfh')
           AND NOT EXISTS (
               SELECT 1
               FROM commitments c

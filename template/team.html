@@ -24,7 +24,7 @@
 {% set total = rows | sum(attribute='total') %}
 {% set done = rows | sum(attribute='completed') %}
 {% set late = rows | sum(attribute='late') %}
-{% set zero_commitment_today = rows | selectattr('today_commitments', 'equalto', 0) | list | length %}
+{% set zero_commitment_today = rows | selectattr('attendance_status', 'in', ['present', 'wfh']) | selectattr('today_commitments', 'equalto', 0) | list | length %}
 
 <div class="stats-grid">
   <div class="stat-card">
@@ -96,7 +96,8 @@
       </thead>
       <tbody>
         {% for r in rows %}
-        <tr class="clickable-row" data-zero-commitment-today="{{ 'true' if r.today_commitments == 0 else 'false' }}"
+        <tr class="clickable-row" data-zero-commitment-today="{{ 'true' if r.attendance_status in ['present', 'wfh'] and r.today_commitments == 0 else 'false' }}"
+          data-currently-present="{{ 'true' if r.attendance_status in ['present', 'wfh'] else 'false' }}"
           data-href="{{ url_for('user_view', uid=r.id) }}" title="View {{ r.staff }}'s commitments">
           <td>
             <div class="person-card">
