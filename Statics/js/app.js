@@ -242,6 +242,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  const closeAllOverviewPanels = () => {
+    closeAllKpiPanels();
+    resetCmoFilter();
+  };
+
   kpiPanels.forEach(({ toggle, panel }) => {
     if (!toggle || !panel) return;
 
@@ -253,8 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.setAttribute('aria-expanded', 'false');
         panel.hidden = true;
       } else {
-        closeAllKpiPanels();
-        resetCmoFilter();
+        closeAllOverviewPanels();
 
         toggle.setAttribute('aria-expanded', 'true');
         panel.hidden = false;
@@ -311,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const applyCmoFilter = (type) => {
-    closeAllKpiPanels();
+    closeAllOverviewPanels();
     let matchedCount = 0;
 
     if (type === 'staff') {
