@@ -585,6 +585,32 @@
       </div>
     </div>
 
+    <div class="manager-personal-commitments" onclick="event.stopPropagation();">
+      <div class="manager-personal-commitments-head">
+        <h3><i data-lucide="clipboard-list" class="icon-sm"></i> Manager Commitments</h3>
+        <span class="badge badge-gray">{{ r.manager_commitments | length }}</span>
+      </div>
+      {% if r.manager_commitments %}
+      <div class="manager-personal-commitments-list">
+        {% for c in r.manager_commitments %}
+        <div class="manager-personal-commitment">
+          <div class="manager-personal-commitment-main">
+            <span class="manager-personal-commitment-title">{{ c.commitment_text }}</span>
+            <span class="badge badge-status-{{ c.status }}">{{ c.status | replace('_', ' ') | title }}</span>
+            <span class="badge badge-priority-{{ c.priority }}">{{ c.priority | upper }}</span>
+          </div>
+          <div class="manager-personal-commitment-meta">
+            <span>{{ c.start_date.strftime('%d %b %Y') }} &ndash; {{ c.end_date.strftime('%d %b %Y') }}</span>
+            <span>{{ c.completion_pct }}% complete</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="manager-personal-commitments-empty">No personal commitments.</p>
+      {% endif %}
+    </div>
+
     <!-- Card Footer: Staff Attendance & Open Team Hint -->
     <div class="manager-card-footer">
       <div class="m-footer-attendance">
